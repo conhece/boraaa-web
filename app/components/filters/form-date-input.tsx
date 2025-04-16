@@ -13,8 +13,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
-import { format } from "date-fns";
-import { ptBR } from "date-fns/locale";
+import dayjs from "dayjs";
 import { CalendarIcon } from "lucide-react";
 import type { DateRange } from "react-day-picker";
 
@@ -26,8 +25,9 @@ interface DateInputProps {
   className?: string;
 }
 
-const formatDate = (date: Date) => {
-  return format(date, "dd LLL, y", { locale: ptBR });
+const formatDisplayedDate = (date: Date) => {
+  // return format(date, "dd LLL, y", { locale: ptBR });
+  return dayjs(date).format("D MMM YYYY");
 };
 
 export function FormDateInput({
@@ -42,7 +42,7 @@ export function FormDateInput({
     <FormItem className={cn("relative w-full", className)}>
       <FormLabel
         data-active={activeLabel}
-        className="absolute left-4 top-4.5 text-md text-muted-foreground data-[active=true]:text-sm data-[active=true]:top-2 pointer-events-none transition-all z-10"
+        className="absolute left-3 top-4.5 text-md text-muted-foreground data-[active=true]:text-sm data-[active=true]:top-2 pointer-events-none transition-all z-10"
       >
         {label}
       </FormLabel>
@@ -52,19 +52,20 @@ export function FormDateInput({
             <Button
               variant="outline"
               className={cn(
-                "h-[58px] pt-6.5 w-[232px] pl-3 text-left font-normal",
+                "h-[58px] pt-6.5 w-full min-w-[220px] pl-3 text-left text-sm font-normal",
                 !value && "text-muted-foreground"
               )}
             >
               {value?.from ? (
                 value.to ? (
                   <>
-                    {formatDate(value.from)} - {formatDate(value.to)}
+                    {formatDisplayedDate(value.from)} -{" "}
+                    {formatDisplayedDate(value.to)}
                     <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
                   </>
                 ) : (
                   <>
-                    {formatDate(value.from)}
+                    {formatDisplayedDate(value.from)}
                     <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
                   </>
                 )

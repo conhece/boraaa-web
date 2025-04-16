@@ -27,10 +27,10 @@ export function FormSelect({
 }: FormSelectProps) {
   const activeLabel = value && value.length > 0;
   return (
-    <FormItem className="relative w-full min-w-[180px]">
+    <FormItem className="relative w-full">
       <FormLabel
         data-active={activeLabel}
-        className="absolute left-4 top-4.5 text-md text-muted-foreground data-[active=true]:text-sm data-[active=true]:top-2 pointer-events-none transition-all z-10"
+        className="absolute left-3 top-4.5 text-md text-muted-foreground data-[active=true]:text-sm data-[active=true]:top-2 pointer-events-none transition-all z-10"
       >
         {label}
       </FormLabel>
@@ -41,6 +41,7 @@ export function FormSelect({
           </SelectTrigger>
         </FormControl>
         <SelectContent>
+          <SelectItem value="all">Todas</SelectItem>
           {options.map((item) => (
             <SelectItem key={item} value={item}>
               {item}

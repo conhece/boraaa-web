@@ -3,7 +3,7 @@
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Form, FormField } from "@/components/ui/form";
-import { formatDate } from "@/helpers/date";
+import { dayjs } from "@/lib/dayjs";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Search } from "lucide-react";
 import { useForm } from "react-hook-form";
@@ -11,7 +11,6 @@ import { useNavigate } from "react-router";
 import { z } from "zod";
 import { FormDateInput } from "./form-date-input";
 import { FormSelect } from "./form-select";
-import { getFormDate } from "./utils";
 
 type FiltersData = {
   from: string | null;
@@ -20,20 +19,20 @@ type FiltersData = {
   category: string | null;
 };
 
-const categories = ["Cinema", "Teatro", "Música"];
+const categories = ["Música", "Teatro", "Cinema", "Artes visuais", "Exposição"];
 
-const cities = [
-  "São Paulo",
-  "Rio de Janeiro",
-  "Belo Horizonte",
-  "Salvador",
-  "Fortaleza",
-  "Brasília",
-  "Curitiba",
-  "Porto Alegre",
-  "Recife",
-  "Manaus",
-];
+// const cities = [
+//   "São Paulo",
+//   "Rio de Janeiro",
+//   "Belo Horizonte",
+//   "Salvador",
+//   "Fortaleza",
+//   "Brasília",
+//   "Curitiba",
+//   "Porto Alegre",
+//   "Recife",
+//   "Manaus",
+// ];
 
 const formSchema = z.object({
   date: z
@@ -42,7 +41,7 @@ const formSchema = z.object({
       to: z.date().optional(),
     })
     .optional(),
-  city: z.string().optional(),
+  // city: z.string().optional(),
   category: z.string().optional(),
 });
 
@@ -54,29 +53,31 @@ export function MainFilters({ data }: { data?: FiltersData }) {
     defaultValues: {
       date: data?.from
         ? {
-            from: getFormDate(data.from),
-            to: data.to ? getFormDate(data.to) : undefined,
+            from: dayjs(data.from).toDate(),
+            to: data.to ? dayjs(data.to).toDate() : undefined,
           }
         : undefined,
-      city: data?.city || undefined,
+      // city: data?.city || undefined,
       category: data?.category || undefined,
     },
   });
 
   function onSubmit(data: z.infer<typeof formSchema>) {
-    console.log(data);
-    const { date, city, category } = data;
+    const { date, category } = data;
     const newSearchParams = new URLSearchParams();
-    if (date?.from) newSearchParams.set("from", formatDate(date.from));
-    if (date?.to) newSearchParams.set("to", formatDate(date.to));
-    if (city) newSearchParams.set("city", city);
-    if (category) newSearchParams.set("category", category);
+    if (date?.from)
+      newSearchParams.set("from", dayjs(date.from).format("YYYY-MM-DD"));
+    if (date?.to)
+      newSearchParams.set("to", dayjs(date.to).format("YYYY-MM-DD"));
+    // if (city && city !== "all") newSearchParams.set("city", city);
+    if (category && category !== "all")
+      newSearchParams.set("category", category);
     navigate(`/search?${newSearchParams.toString()}`);
   }
 
   return (
     <div className="w-full flex items-center justify-center">
-      <Card className="p-8 mx-w-[900px] shadow-xs">
+      <Card className="p-6 w-full lg:max-w-[800px] shadow-xs">
         <Form {...form}>
           <form
             onSubmit={form.handleSubmit(onSubmit)}
@@ -89,7 +90,7 @@ export function MainFilters({ data }: { data?: FiltersData }) {
                 <FormDateInput label="Data" {...field} value={field.value} />
               )}
             />
-            <FormField
+            {/* <FormField
               control={form.control}
               name="city"
               render={({ field }) => (
@@ -100,7 +101,7 @@ export function MainFilters({ data }: { data?: FiltersData }) {
                   onChange={field.onChange}
                 />
               )}
-            />
+            /> */}
             <FormField
               control={form.control}
               name="category"

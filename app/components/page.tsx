@@ -9,7 +9,7 @@ function PageContent({ className, ...props }: React.ComponentProps<"div">) {
 function Container({ className, ...props }: React.ComponentProps<"div">) {
   return (
     <div
-      className={cn("mx-auto container flex flex-col gap-8", className)}
+      className={cn("px-4 mx-auto container flex flex-col gap-8", className)}
       {...props}
     />
   );
