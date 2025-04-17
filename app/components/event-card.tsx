@@ -2,6 +2,7 @@ import { categoryToDisplayMap } from "@/helpers/events";
 import type { Event } from "@/lib/db/prisma/generated";
 import { ImageOff } from "lucide-react";
 import ExternalLink from "./external-link";
+import { ImageComponent } from "./image";
 import { Badge } from "./ui/badge";
 import { Card } from "./ui/card";
 
@@ -9,9 +10,12 @@ export function EventCard({ event }: { event: Event }) {
   return (
     <ExternalLink href={event.url}>
       <Card className="p-0 w-full gap-0 rounded-lg overflow-hidden">
-        <div className="w-full h-auto">
+        <div className="w-full min-h-[148px] h-auto">
           {event.image ? (
-            <img src={event.image} alt={event.name ?? "Imagem do evento"} />
+            <ImageComponent
+              src={event.image}
+              alt={event.name ?? "Imagem do evento"}
+            />
           ) : (
             <ImageOff />
           )}
