@@ -1,0 +1,97 @@
+import { dayjs } from "@/lib/dayjs";
+import { useMemo } from "react";
+import { useNavigate } from "react-router";
+import { Badge } from "./ui/badge";
+
+export function ShortCutBadge({
+  isActive,
+  ...props
+}: React.ComponentProps<typeof Badge> & { isActive?: boolean }) {
+  return (
+    <Badge
+      variant={isActive ? "default" : "secondary"}
+      className="px-4 py-2 rounded-full cursor-pointer"
+      {...props}
+    />
+  );
+}
+
+type ParamsData = {
+  from: string | null;
+  to: string | null;
+};
+
+type DateType = "today" | "week" | "month";
+
+const options: {
+  label: string;
+  value: DateType;
+}[] = [
+  { label: "Hoje", value: "today" },
+  { label: "Esta semana", value: "week" },
+  { label: "Este mês", value: "month" },
+];
+
+export function DateShortcuts({ data }: { data?: ParamsData }) {
+  const navigate = useNavigate();
+
+  const dates = useMemo(() => {
+    return {
+      today: dayjs().format("YYYY-MM-DD"),
+      startOfWeek: dayjs().startOf("week").format("YYYY-MM-DD"),
+      endOfWeek: dayjs().endOf("week").format("YYYY-MM-DD"),
+      startOfMonth: dayjs().startOf("month").format("YYYY-MM-DD"),
+      endOfMonth: dayjs().endOf("month").format("YYYY-MM-DD"),
+    };
+  }, []);
+
+  const active = useMemo(() => {
+    if (!data?.from) return "today";
+    const { from, to } = data;
+    const { today, startOfWeek, endOfWeek, startOfMonth, endOfMonth } = dates;
+    if (from === today && !to) return "today";
+    if (from === startOfWeek && to === endOfWeek) return "week";
+    if (from === startOfMonth && to === endOfMonth) return "month";
+  }, [data, dates]);
+
+  const handleDate = (type: DateType) => {
+    const { today, startOfWeek, endOfWeek, startOfMonth, endOfMonth } = dates;
+    switch (type) {
+      case "today":
+        navigate({
+          pathname: "/search",
+          search: `?from=${today}`,
+        });
+        break;
+      case "week":
+        navigate({
+          pathname: "/search",
+          search: `?from=${startOfWeek}&to=${endOfWeek}`,
+        });
+        break;
+      case "month":
+        navigate({
+          pathname: "/search",
+          search: `?from=${startOfMonth}&to=${endOfMonth}`,
+        });
+        break;
+      default:
+        throw new Error("Invalid date type");
+    }
+  };
+
+  return (
+    <div className="flex flex-wrap gap-4">
+      {options.map((option) => (
+        <ShortCutBadge
+          key={option.value}
+          isActive={active === option.value}
+          onClick={() => handleDate(option.value)}
+        >
+          {option.label}
+        </ShortCutBadge>
+      ))}
+      <ShortCutBadge onClick={() => {}}>Escolher datas</ShortCutBadge>
+    </div>
+  );
+}

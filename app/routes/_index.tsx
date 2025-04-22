@@ -1,3 +1,4 @@
+import { DateShortcuts } from "@/components/date-shortcuts";
 import { EventList, EventListLoading } from "@/components/event-list";
 import { MainFilters } from "@/components/filters";
 import { Container, PageContent, SectionTitle } from "@/components/page";
@@ -18,10 +19,9 @@ export function meta({}: Route.MetaArgs) {
 }
 
 export async function loader() {
-  const from = dayjs();
-  const to = dayjs().add(7, "days");
-  const startDate = from.format("YYYY-MM-DDTHH:mm:ssZ[Z]");
-  const endDate = to.endOf("day").format("YYYY-MM-DDTHH:mm:ssZ[Z]");
+  const today = dayjs();
+  const startDate = today.format("YYYY-MM-DDTHH:mm:ssZ[Z]");
+  const endDate = today.endOf("day").format("YYYY-MM-DDTHH:mm:ssZ[Z]");
 
   const promise = getEvents({
     around: [-23.561097, -46.6585247],
@@ -46,6 +46,7 @@ export default function LandingPage({ loaderData }: Route.ComponentProps) {
           </h2>
         </div>
         <MainFilters />
+        <DateShortcuts />
         <div className="space-y-4">
           <SectionTitle>Os principais eventos da semana</SectionTitle>
           <Suspense fallback={<EventListLoading />}>

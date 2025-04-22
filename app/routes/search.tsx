@@ -1,3 +1,4 @@
+import { DateShortcuts } from "@/components/date-shortcuts";
 import { EventList, EventListLoading } from "@/components/event-list";
 import { MainFilters } from "@/components/filters";
 import { Container, PageContent, SectionTitle } from "@/components/page";
@@ -69,6 +70,7 @@ export default function SearchPage({ loaderData }: Route.ComponentProps) {
           </h2>
         </div>
         <MainFilters data={params} />
+        <DateShortcuts data={params} />
         <div className="space-y-4">
           <SectionTitle>Principais resultados encontrados</SectionTitle>
           <Suspense fallback={<EventListLoading />}>
