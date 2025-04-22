@@ -1,7 +1,7 @@
 import { DateShortcuts } from "@/components/date-shortcuts";
 import { EventList, EventListLoading } from "@/components/event-list";
-import { MainFilters } from "@/components/filters";
 import { Container, PageContent, SectionTitle } from "@/components/page";
+import { SearchCard } from "@/components/search-card";
 import { eventCategoryMap } from "@/helpers/events";
 import { dayjs } from "@/lib/dayjs";
 import { getEvents } from "@/lib/db/events";
@@ -69,8 +69,9 @@ export default function SearchPage({ loaderData }: Route.ComponentProps) {
             Encontre eventos curados e chame seus amigos
           </h2>
         </div>
-        <MainFilters data={params} />
-        <DateShortcuts data={params} />
+        <SearchCard params={params} />
+        {/* <MainFilters data={params} /> */}
+        <DateShortcuts params={params} />
         <div className="space-y-4">
           <SectionTitle>Principais resultados encontrados</SectionTitle>
           <Suspense fallback={<EventListLoading />}>

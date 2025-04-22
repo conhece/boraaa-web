@@ -1,4 +1,5 @@
 import { dayjs } from "@/lib/dayjs";
+import type { CustomSearchParams } from "@/lib/types/search";
 import { useMemo } from "react";
 import { useNavigate } from "react-router";
 import { Badge } from "./ui/badge";
@@ -16,11 +17,6 @@ export function ShortCutBadge({
   );
 }
 
-type ParamsData = {
-  from: string | null;
-  to: string | null;
-};
-
 type DateType = "today" | "week" | "month";
 
 const options: {
@@ -32,7 +28,7 @@ const options: {
   { label: "Este mês", value: "month" },
 ];
 
-export function DateShortcuts({ data }: { data?: ParamsData }) {
+export function DateShortcuts({ params }: { params?: CustomSearchParams }) {
   const navigate = useNavigate();
 
   const dates = useMemo(() => {
@@ -46,13 +42,13 @@ export function DateShortcuts({ data }: { data?: ParamsData }) {
   }, []);
 
   const active = useMemo(() => {
-    if (!data?.from) return "today";
-    const { from, to } = data;
+    if (!params?.from) return "today";
+    const { from, to } = params;
     const { today, startOfWeek, endOfWeek, startOfMonth, endOfMonth } = dates;
     if (from === today && !to) return "today";
     if (from === startOfWeek && to === endOfWeek) return "week";
     if (from === startOfMonth && to === endOfMonth) return "month";
-  }, [data, dates]);
+  }, [params, dates]);
 
   const handleDate = (type: DateType) => {
     const { today, startOfWeek, endOfWeek, startOfMonth, endOfMonth } = dates;
@@ -81,7 +77,7 @@ export function DateShortcuts({ data }: { data?: ParamsData }) {
   };
 
   return (
-    <div className="flex flex-wrap gap-4">
+    <div className="flex gap-4">
       {options.map((option) => (
         <ShortCutBadge
           key={option.value}
@@ -91,7 +87,6 @@ export function DateShortcuts({ data }: { data?: ParamsData }) {
           {option.label}
         </ShortCutBadge>
       ))}
-      <ShortCutBadge onClick={() => {}}>Escolher datas</ShortCutBadge>
     </div>
   );
 }

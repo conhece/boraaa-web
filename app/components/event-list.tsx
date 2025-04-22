@@ -1,4 +1,4 @@
-import type { Event } from "@/lib/db/prisma/generated";
+import type { IEvent } from "@/lib/db/models/event";
 import { use } from "react";
 import { EventCard } from "./event-card";
 import { Skeleton } from "./ui/skeleton";
@@ -18,7 +18,7 @@ export function EventListLoading() {
   );
 }
 
-export function EventList({ promise }: { promise: Promise<Event[]> }) {
+export function EventList({ promise }: { promise: Promise<IEvent[]> }) {
   const events = use(promise);
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">

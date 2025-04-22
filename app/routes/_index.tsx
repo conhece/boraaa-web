@@ -1,7 +1,7 @@
 import { DateShortcuts } from "@/components/date-shortcuts";
 import { EventList, EventListLoading } from "@/components/event-list";
-import { MainFilters } from "@/components/filters";
 import { Container, PageContent, SectionTitle } from "@/components/page";
+import { SearchCard } from "@/components/search-card";
 import { getEvents } from "@/lib/db/events";
 import dayjs from "dayjs";
 import { Suspense } from "react";
@@ -45,7 +45,8 @@ export default function LandingPage({ loaderData }: Route.ComponentProps) {
             Encontre eventos curados e chame seus amigos
           </h2>
         </div>
-        <MainFilters />
+        <SearchCard />
+        {/* <MainFilters /> */}
         <DateShortcuts />
         <div className="space-y-4">
           <SectionTitle>Os principais eventos da semana</SectionTitle>

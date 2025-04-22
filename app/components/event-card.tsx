@@ -1,12 +1,12 @@
 import { categoryToDisplayMap } from "@/helpers/events";
-import type { Event } from "@/lib/db/prisma/generated";
+import type { IEvent } from "@/lib/db/models/event";
 import { ImageOff } from "lucide-react";
 import ExternalLink from "./external-link";
 import { ImageComponent } from "./image";
 import { Badge } from "./ui/badge";
 import { Card } from "./ui/card";
 
-export function EventCard({ event }: { event: Event }) {
+export function EventCard({ event }: { event: IEvent }) {
   return (
     <ExternalLink href={event.url}>
       <Card className="p-0 w-full gap-0 rounded-lg overflow-hidden">
@@ -28,7 +28,7 @@ export function EventCard({ event }: { event: Event }) {
             </p>
           </div>
           <div className="flex flex-wrap gap-2">
-            {event.categories.map((category) => (
+            {event.categories?.map((category) => (
               <Badge
                 variant="secondary"
                 key={category}
