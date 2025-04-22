@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 
-const DATABASE_URL = process.env.DATABASE_URL!;
+const DATABASE_URL = process.env.DATABASE_URL;
 
 // Track connection status
 let isConnected = false;
@@ -8,6 +8,10 @@ let isConnected = false;
 export const connectToDatabase = async () => {
   if (isConnected) {
     return mongoose.connection;
+  }
+
+  if (!DATABASE_URL) {
+    throw new Error("DATABASE_URL environment variable is not defined");
   }
 
   try {

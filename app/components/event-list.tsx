@@ -18,7 +18,7 @@ export function EventListLoading() {
   );
 }
 
-export function EventList({ promise }: { promise: Promise<IEvent[]> }) {
+export function EventList2({ promise }: { promise: Promise<IEvent[]> }) {
   const events = use(promise);
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -26,6 +26,29 @@ export function EventList({ promise }: { promise: Promise<IEvent[]> }) {
         <p className="text-muted-foreground">Nenhum evento encontrado =/</p>
       )}
       {events.map((event) => (
+        <EventCard key={event.url} event={event} />
+      ))}
+    </div>
+  );
+}
+
+export function EventList({
+  data,
+  isPending,
+}: {
+  data?: IEvent[];
+  isPending: boolean;
+}) {
+  if (isPending) {
+    return <EventListLoading />;
+  }
+
+  return (
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+      {data?.length === 0 && (
+        <p className="text-muted-foreground">Nenhum evento encontrado =/</p>
+      )}
+      {data?.map((event) => (
         <EventCard key={event.url} event={event} />
       ))}
     </div>

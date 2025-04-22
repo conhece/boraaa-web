@@ -3,8 +3,9 @@ import type { CustomSearchParams } from "@/lib/types/search";
 import { useMemo } from "react";
 import { useNavigate } from "react-router";
 import { Badge } from "./ui/badge";
+import { Button } from "./ui/button";
 
-export function ShortCutBadge({
+function ShortCutBadge({
   isActive,
   ...props
 }: React.ComponentProps<typeof Badge> & { isActive?: boolean }) {
@@ -51,6 +52,7 @@ export function DateShortcuts({ params }: { params?: CustomSearchParams }) {
   }, [params, dates]);
 
   const handleDate = (type: DateType) => {
+    console.log(">> type: ", type);
     const { today, startOfWeek, endOfWeek, startOfMonth, endOfMonth } = dates;
     switch (type) {
       case "today":
@@ -79,13 +81,14 @@ export function DateShortcuts({ params }: { params?: CustomSearchParams }) {
   return (
     <div className="flex gap-4">
       {options.map((option) => (
-        <ShortCutBadge
+        <Button
           key={option.value}
-          isActive={active === option.value}
+          variant={active === option.value ? "default" : "secondary"}
           onClick={() => handleDate(option.value)}
+          className="rounded-full"
         >
           {option.label}
-        </ShortCutBadge>
+        </Button>
       ))}
     </div>
   );

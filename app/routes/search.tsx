@@ -5,6 +5,12 @@ import { SearchCard } from "@/components/search-card";
 import { eventCategoryMap } from "@/helpers/events";
 import { dayjs } from "@/lib/dayjs";
 import { getEvents } from "@/lib/db/events";
+import {
+  dehydrate,
+  HydrationBoundary,
+  QueryClient,
+  useQuery,
+} from "@tanstack/react-query";
 import { Suspense } from "react";
 import type { Route } from "./+types/search";
 
@@ -26,7 +32,16 @@ function getCategory(param: string | null) {
   return [category];
 }
 
+function getDates(from: string | null, to: string | null) {
+  const start = from ? dayjs(from) : dayjs();
+  const end = to ? dayjs(to) : start;
+  const startDate = start.format("YYYY-MM-DDTHH:mm:ssZ[Z]");
+  const endDate = end.endOf("day").format("YYYY-MM-DDTHH:mm:ssZ[Z]");
+  return { startDate, endDate };
+}
+
 export async function loader({ request }: Route.LoaderArgs) {
+  const queryClient = new QueryClient();
   const url = new URL(request.url);
 
   const params = {
@@ -35,31 +50,69 @@ export async function loader({ request }: Route.LoaderArgs) {
     city: url.searchParams.get("city"),
     category: url.searchParams.get("category"),
   };
+  const around: [number, number] = [-23.561097, -46.6585247];
 
-  const from = params.from ? dayjs(params.from) : dayjs();
-  const to = params.to ? dayjs(params.to) : from;
-  const startDate = from.format("YYYY-MM-DDTHH:mm:ssZ[Z]");
-  const endDate = to.endOf("day").format("YYYY-MM-DDTHH:mm:ssZ[Z]");
+  const { startDate, endDate } = getDates(params.from, params.to);
 
   const category = getCategory(params.category);
 
-  const promise = getEvents({
-    around: [-23.561097, -46.6585247],
-    startsAfter: startDate,
-    startsBefore: endDate,
-    categories: category,
-    // minimumAge: parseInt(minimumAge),
-    // cheapestPrice: parseInt(cheapestPrice),
+  // const promise = getEvents({
+  //   around: [-23.561097, -46.6585247],
+  //   startsAfter: startDate,
+  //   startsBefore: endDate,
+  //   categories: category,
+  //   // minimumAge: parseInt(minimumAge),
+  //   // cheapestPrice: parseInt(cheapestPrice),
+  // });
+
+  // return {
+  //   params,
+  //   promise,
+  // };
+  await queryClient.prefetchQuery({
+    queryKey: ["search", around, params.from, params.to, category],
+    queryFn: () =>
+      getEvents({
+        around,
+        startsAfter: startDate,
+        startsBefore: endDate,
+        categories: category,
+        // minimumAge: parseInt(minimumAge),
+        // cheapestPrice: parseInt(cheapestPrice),
+      }),
   });
 
   return {
-    params,
-    promise,
+    params: {
+      ...params,
+      around,
+    },
+    dehydratedState: dehydrate(queryClient),
   };
 }
 
-export default function SearchPage({ loaderData }: Route.ComponentProps) {
-  const { params, promise } = loaderData;
+function SearchPage({
+  params,
+}: {
+  params: Route.ComponentProps["loaderData"]["params"];
+}) {
+  const { around, from, to, category } = params;
+
+  const { data, isPending } = useQuery({
+    queryKey: ["search", around, from, to, category],
+    queryFn: () => {
+      const { startDate, endDate } = getDates(from, to);
+      return getEvents({
+        around,
+        startsAfter: startDate,
+        startsBefore: endDate,
+        categories: category ? [category] : undefined,
+        // minimumAge: parseInt(minimumAge),
+        // cheapestPrice: parseInt(cheapestPrice),
+      });
+    },
+  });
+
   return (
     <PageContent>
       <Container>
@@ -75,10 +128,19 @@ export default function SearchPage({ loaderData }: Route.ComponentProps) {
         <div className="space-y-4">
           <SectionTitle>Principais resultados encontrados</SectionTitle>
           <Suspense fallback={<EventListLoading />}>
-            <EventList promise={promise} />
+            <EventList data={data} isPending={isPending} />
           </Suspense>
         </div>
       </Container>
     </PageContent>
+  );
+}
+
+export default function Route({ loaderData }: Route.ComponentProps) {
+  const { params, dehydratedState } = loaderData;
+  return (
+    <HydrationBoundary state={dehydratedState}>
+      <SearchPage params={params} />
+    </HydrationBoundary>
   );
 }
