@@ -1,9 +1,10 @@
-import { EventCard } from "@/components/event-card";
+import { EventList, EventListLoading } from "@/components/event-list";
 import { MainFilters } from "@/components/filters";
 import { Container, PageContent, SectionTitle } from "@/components/page";
 import { eventCategoryMap } from "@/helpers/events";
 import { dayjs } from "@/lib/dayjs";
 import { getEvents } from "@/lib/db/events";
+import { Suspense } from "react";
 import type { Route } from "./+types/search";
 
 export function meta({}: Route.MetaArgs) {
@@ -41,7 +42,7 @@ export async function loader({ request }: Route.LoaderArgs) {
 
   const category = getCategory(params.category);
 
-  const events = await getEvents({
+  const promise = getEvents({
     around: [-23.561097, -46.6585247],
     startsAfter: startDate,
     startsBefore: endDate,
@@ -52,12 +53,12 @@ export async function loader({ request }: Route.LoaderArgs) {
 
   return {
     params,
-    data: events,
+    promise,
   };
 }
 
 export default function SearchPage({ loaderData }: Route.ComponentProps) {
-  const { params, data } = loaderData;
+  const { params, promise } = loaderData;
   return (
     <PageContent>
       <Container>
@@ -70,16 +71,9 @@ export default function SearchPage({ loaderData }: Route.ComponentProps) {
         <MainFilters data={params} />
         <div className="space-y-4">
           <SectionTitle>Principais resultados encontrados</SectionTitle>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            {data.length === 0 && (
-              <p className="text-muted-foreground">
-                Nenhum evento encontrado =/
-              </p>
-            )}
-            {data.map((event) => (
-              <EventCard key={event.url} event={event} />
-            ))}
-          </div>
+          <Suspense fallback={<EventListLoading />}>
+            <EventList promise={promise} />
+          </Suspense>
         </div>
       </Container>
     </PageContent>
