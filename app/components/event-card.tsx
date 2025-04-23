@@ -3,7 +3,7 @@ import type { IEvent } from "@/lib/db/models/event";
 import { cn } from "@/lib/utils";
 import dayjs from "dayjs";
 import { ImageOff } from "lucide-react";
-import ExternalLink from "./external-link";
+import { useSearchParams } from "react-router";
 import { ImageComponent } from "./image";
 import { Badge } from "./ui/badge";
 import { Card } from "./ui/card";
@@ -42,50 +42,87 @@ function getDate(date: string) {
   return dayjs(date).format("DD/MM");
 }
 
-export function EventCard({ event }: { event: IEvent }) {
-  const date = event.schedule ? getDate(event.schedule[0].startDate) : "";
+function EventImage({ src, className, ...props }: React.ComponentProps<"img">) {
   return (
-    <ExternalLink href={event.url}>
-      <Card className="p-0 w-full min-h-[302px] gap-0 rounded-lg overflow-hidden">
-        <div className="w-full min-h-[148px] h-auto">
-          {event.image ? (
-            <ImageComponent
-              src={event.image}
-              alt={event.name ?? "Imagem do evento"}
-            />
-          ) : (
-            <ImageOff />
-          )}
-        </div>
-        <div className="p-4 space-y-4">
-          <div className="space-y-1">
-            <p className="text-lg font-medium">{event.name}</p>
-            <div className="flex flex-wrap items-center gap-2">
-              <Classification minimumAge={event.minimumAge} />
-              <p className="text-sm text-muted-foreground">
-                {event.schema.location}
-              </p>
-              <Dot />
-              <p className="text-sm text-muted-foreground">
-                {event.cheapestPrice === 0 ? "Gratuito" : "Pago"}
-              </p>
-              <Dot />
-              <p className="text-sm text-muted-foreground">{date}</p>
-            </div>
-          </div>
-          <div className="flex flex-wrap gap-2">
-            {event.categories?.map((category) => (
-              <Badge
-                variant="secondary"
-                key={category}
-                className="text-xs text-muted-foreground"
-              >
-                {categoryToDisplayMap.get(category)}
-              </Badge>
-            ))}
-          </div>
-        </div>
-      </Card>
-    </ExternalLink>
+    <div className={cn("w-full min-h-[148px] h-auto", className)}>
+      {src ? <ImageComponent src={src} {...props} /> : <ImageOff />}
+    </div>
   );
 }
+
+function EventSummary({
+  event,
+  className,
+}: {
+  event: IEvent;
+  className?: string;
+}) {
+  const date = event?.schedule ? getDate(event.schedule[0].startDate) : "";
+  return (
+    <div className={cn("p-4 space-y-4", className)}>
+      <div className="space-y-1">
+        <p className="text-lg font-medium">{event.name}</p>
+        <div className="flex flex-wrap items-center gap-2">
+          <Classification minimumAge={event.minimumAge} />
+          <p className="text-sm text-muted-foreground">
+            {event.schema.location}
+          </p>
+          <Dot />
+          <p className="text-sm text-muted-foreground">
+            {event.cheapestPrice === 0 ? "Gratuito" : "Pago"}
+          </p>
+          <Dot />
+          <p className="text-sm text-muted-foreground">{date}</p>
+        </div>
+      </div>
+      <div className="flex flex-wrap gap-2">
+        {event.categories?.map((category) => (
+          <Badge
+            variant="secondary"
+            key={category}
+            className="text-xs text-muted-foreground"
+          >
+            {categoryToDisplayMap.get(category)}
+          </Badge>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function EventCard({
+  event,
+  className,
+}: {
+  event: IEvent | null;
+  className?: string;
+}) {
+  const [searcParamss, setSearchParams] = useSearchParams();
+
+  const onSelect = () => {
+    if (!event?.name) return;
+    const params = new URLSearchParams(searcParamss);
+    params.set("event", event.name);
+    setSearchParams(params);
+  };
+
+  if (!event) return null;
+
+  return (
+    <Card
+      className={cn(
+        "p-0 w-full min-h-[302px] gap-0 cursor-pointer rounded-lg overflow-hidden",
+        className
+      )}
+      onClick={onSelect}
+    >
+      <EventImage
+        src={event.image ?? undefined}
+        alt={event.name ?? "Imagem do evento"}
+      />
+      <EventSummary event={event} />
+    </Card>
+  );
+}
+
+export { EventCard, EventImage, EventSummary };

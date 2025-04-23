@@ -1,6 +1,7 @@
 import type { IEvent } from "@/lib/db/models/event";
 import { use } from "react";
 import { EventCard } from "./event-card";
+import { EventDialog } from "./event-dialog";
 import { Skeleton } from "./ui/skeleton";
 
 export function EventListLoading() {
@@ -28,6 +29,7 @@ export function EventList({ promise }: { promise: Promise<IEvent[]> }) {
       {events.map((event) => (
         <EventCard key={event.url} event={event} />
       ))}
+      <EventDialog events={events} />
     </div>
   );
 }

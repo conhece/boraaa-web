@@ -78,7 +78,7 @@ export default function SearchPage({ loaderData }: Route.ComponentProps) {
           </h2>
         </div>
         <SearchCard params={params} />
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
           <DateShortcuts params={params} />
           <Filters params={params} />
         </div>

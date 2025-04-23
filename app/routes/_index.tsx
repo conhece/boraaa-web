@@ -44,7 +44,7 @@ export default function LandingPage({ loaderData }: Route.ComponentProps) {
           </h2>
         </div>
         <SearchCard />
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
           <DateShortcuts />
           <Filters />
         </div>

@@ -47,17 +47,18 @@ export function SearchCard({ params }: { params?: CustomSearchParams }) {
 
   return (
     <div className="w-full flex items-center justify-center">
-      <Card className="p-6 w-full lg:max-w-[800px] flex-row items-center gap-4 shadow-xs">
+      <Card className="p-6 w-full lg:max-w-[800px] md:flex-row items-center gap-4 shadow-xs">
         <div className="w-full relative">
           <Input
             placeholder="Buscar por artista, evento ou local"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
+            className="text-sm lg:text-md"
           />
           <Search className="absolute w-4 h-4 right-2 top-1/2 -translate-y-1/2" />
         </div>
         <div className="w-full relative">
-          <Input value="São Paulo" readOnly />
+          <Input value="São Paulo" className="text-sm lg:text-md" readOnly />
           <MapPin className="absolute w-4 h-4 right-2 top-1/2 -translate-y-1/2" />
         </div>
       </Card>
