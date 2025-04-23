@@ -67,7 +67,8 @@ export async function getEvents({
       (event) =>
         searchRegex.test(event.name) ||
         searchRegex.test(event.about) ||
-        searchRegex.test(event.author)
+        searchRegex.test(event.author) ||
+        searchRegex.test(event.schema.location)
     );
 
     // Limit to 12 results after filtering

@@ -45,8 +45,8 @@ export interface IEvent extends Document {
   duration: number | null;
   schedule:
     | {
-        startDate: Date;
-        endDate?: Date;
+        startDate: string;
+        endDate?: string;
         [key: string]: any;
       }[]
     | null;
