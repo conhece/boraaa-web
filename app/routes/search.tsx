@@ -36,6 +36,7 @@ export async function loader({ request }: Route.LoaderArgs) {
   const url = new URL(request.url);
 
   const params = {
+    search: url.searchParams.get("search"),
     from: url.searchParams.get("from"),
     to: url.searchParams.get("to"),
     city: url.searchParams.get("city"),
@@ -50,6 +51,7 @@ export async function loader({ request }: Route.LoaderArgs) {
   const categories = getCategories(params.categories);
 
   const promise = getEvents({
+    search: params.search,
     around: [-23.561097, -46.6585247],
     startsAfter: startDate,
     startsBefore: endDate,

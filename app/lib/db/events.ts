@@ -1,38 +1,8 @@
-import { logArgs } from "@/helpers/app";
-
 import type { FilterQuery } from "mongoose";
 import { connectToDatabase } from "./connection";
 import { Event, type IEvent } from "./models/event";
-
-// Initialize connection when server starts
-connectToDatabase().catch(console.error);
-
-// async function checkCollection() {
-//   await connectToDatabase();
-
-//   // List all collections in the database
-//   const collections = await mongoose.connection.db?.listCollections().toArray();
-//   console.log(
-//     "Available collections:",
-//     collections?.map((c) => c.name)
-//   );
-
-//   // Check if 'events' collection exists
-//   const eventCollection = collections?.find((c) => c.name === "events");
-//   console.log("Event collection:", eventCollection);
-
-//   // If it exists, get a sample document
-//   if (eventCollection) {
-//     const sample = await mongoose.connection.db
-//       ?.collection("events")
-//       .findOne({});
-//     console.log("Sample document structure:", sample);
-//   }
-// }
-
-// checkCollection().catch(console.error);
-
 interface Params {
+  search?: string | null;
   around: [number, number];
   startsAfter: string;
   startsBefore: string;
@@ -43,6 +13,7 @@ interface Params {
 }
 
 export async function getEvents({
+  search,
   around,
   startsAfter,
   startsBefore,
@@ -51,7 +22,7 @@ export async function getEvents({
   minimumAge = 0,
   cheapestPrice = 0,
 }: Params) {
-  logArgs(">> categories: ", categories);
+  await connectToDatabase();
   // Build base query object
   const query: FilterQuery<IEvent> = {
     location: {
@@ -86,7 +57,23 @@ export async function getEvents({
     query.minimumAge = { $gte: minimumAge };
   }
 
+  // Execute the geospatial query
+  let results = await Event.find(query).limit(search ? 50 : 12); // Get more results if we need to filter by search
+
+  // If search is provided, filter the results in memory
+  if (search) {
+    const searchRegex = new RegExp(search, "i"); // Case-insensitive search
+    results = results.filter(
+      (event) =>
+        searchRegex.test(event.name) ||
+        searchRegex.test(event.about) ||
+        searchRegex.test(event.author)
+    );
+
+    // Limit to 12 results after filtering
+    results = results.slice(0, 12);
+  }
+
   // Execute the query
-  const results = await Event.find(query).limit(12);
   return results.map((event) => event._doc);
 }
