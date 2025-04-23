@@ -71,13 +71,19 @@ export async function getEvents({
         },
       },
     },
-    cheapestPrice: { $gte: cheapestPrice },
-    minimumAge: { $gte: minimumAge },
   };
 
-  // Conditionally add categories filter
+  // Conditionally add filters
   if (categories && categories.length > 0) {
     query.categories = { $in: categories };
+  }
+
+  if (cheapestPrice) {
+    query.cheapestPrice = { $gte: cheapestPrice };
+  }
+
+  if (minimumAge) {
+    query.minimumAge = { $gte: minimumAge };
   }
 
   // Execute the query

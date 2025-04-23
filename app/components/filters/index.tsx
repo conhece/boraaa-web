@@ -1,38 +1,29 @@
-"use client";
-
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
 import { Form, FormField } from "@/components/ui/form";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import {
+  Sheet,
+  SheetClose,
+  SheetContent,
+  SheetDescription,
+  SheetFooter,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet";
+import { eventCategoryMap } from "@/helpers/events";
 import { dayjs } from "@/lib/dayjs";
+import type { CustomSearchParams } from "@/lib/types/search";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Search } from "lucide-react";
+import { FilterIcon } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router";
 import { z } from "zod";
 import { FormDateInput } from "./form-date-input";
-import { FormSelect } from "./form-select";
 
-type FiltersData = {
-  from: string | null;
-  to: string | null;
-  city: string | null;
-  category: string | null;
-};
-
-const categories = ["Música", "Teatro", "Cinema", "Artes visuais", "Exposição"];
-
-// const cities = [
-//   "São Paulo",
-//   "Rio de Janeiro",
-//   "Belo Horizonte",
-//   "Salvador",
-//   "Fortaleza",
-//   "Brasília",
-//   "Curitiba",
-//   "Porto Alegre",
-//   "Recife",
-//   "Manaus",
-// ];
+// get categories from eventCategoryMap
+const categoriesList = Array.from(eventCategoryMap.keys()).sort();
 
 const formSchema = z.object({
   date: z
@@ -41,85 +32,130 @@ const formSchema = z.object({
       to: z.date().optional(),
     })
     .optional(),
-  // city: z.string().optional(),
-  category: z.string().optional(),
+  categories: z.array(z.string()),
 });
 
-export function MainFilters({ data }: { data?: FiltersData }) {
+export function Filters({ params }: { params?: CustomSearchParams }) {
   const navigate = useNavigate();
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      date: data?.from
+      date: params?.from
         ? {
-            from: dayjs(data.from).toDate(),
-            to: data.to ? dayjs(data.to).toDate() : undefined,
+            from: dayjs(params.from).toDate(),
+            to: params.to ? dayjs(params.to).toDate() : undefined,
           }
         : undefined,
-      // city: data?.city || undefined,
-      category: data?.category || undefined,
+      categories: params?.categories || undefined,
     },
   });
 
   function onSubmit(data: z.infer<typeof formSchema>) {
-    const { date, category } = data;
+    const { date, categories } = data;
     const newSearchParams = new URLSearchParams();
-    if (date?.from)
+    if (date?.from) {
       newSearchParams.set("from", dayjs(date.from).format("YYYY-MM-DD"));
-    if (date?.to)
+    }
+    if (date?.to) {
       newSearchParams.set("to", dayjs(date.to).format("YYYY-MM-DD"));
-    // if (city && city !== "all") newSearchParams.set("city", city);
-    if (category && category !== "all")
-      newSearchParams.set("category", category);
+    }
+    if (categories) {
+      categories.forEach((category) =>
+        newSearchParams.append("categories", category)
+      );
+    }
     navigate(`/search?${newSearchParams.toString()}`);
   }
 
+  function onClear() {
+    form.reset({});
+    navigate("/search");
+  }
+
   return (
-    <div className="w-full flex items-center justify-center">
-      <Card className="p-6 w-full lg:max-w-[800px] shadow-xs">
+    <Sheet>
+      <SheetTrigger asChild>
+        <Button variant="secondary" className="px-4 rounded-full">
+          Filtros <FilterIcon />
+        </Button>
+      </SheetTrigger>
+      <SheetContent>
+        <SheetHeader>
+          <SheetTitle>Filtros</SheetTitle>
+          <SheetDescription>
+            Filtre os eventos de acordo com os seus interesses.
+          </SheetDescription>
+        </SheetHeader>
         <Form {...form}>
-          <form
-            onSubmit={form.handleSubmit(onSubmit)}
-            className="flex flex-col gap-4 md:flex-row md:items-center"
-          >
-            <FormField
-              control={form.control}
-              name="date"
-              render={({ field }) => (
-                <FormDateInput label="Data" {...field} value={field.value} />
-              )}
-            />
-            {/* <FormField
-              control={form.control}
-              name="city"
-              render={({ field }) => (
-                <FormSelect
-                  label="Cidade"
-                  options={cities}
-                  value={field.value ?? ""}
-                  onChange={field.onChange}
+          <form onSubmit={form.handleSubmit(onSubmit)}>
+            <ScrollArea className="h-[calc(100vh-164px)]">
+              <div className="px-4 h-full flex flex-col gap-4">
+                <FormField
+                  control={form.control}
+                  name="date"
+                  render={({ field }) => (
+                    <FormDateInput
+                      label="Data"
+                      {...field}
+                      value={field.value}
+                    />
+                  )}
                 />
-              )}
-            /> */}
-            <FormField
-              control={form.control}
-              name="category"
-              render={({ field }) => (
-                <FormSelect
-                  label="Categoria"
-                  options={categories}
-                  value={field.value ?? ""}
-                  onChange={field.onChange}
+                <FormField
+                  control={form.control}
+                  name="categories"
+                  render={({ field }) => {
+                    return (
+                      <div className="w-full flex flex-wrap gap-4">
+                        {categoriesList.map((category) => {
+                          const isActive = field.value?.includes(category);
+                          return (
+                            <Badge
+                              key={category}
+                              id={category}
+                              variant={isActive ? "default" : "secondary"}
+                              className="cursor-pointer"
+                              onClick={(e) => {
+                                if (!isActive) {
+                                  field.onChange([...field.value, category]);
+                                } else {
+                                  field.onChange(
+                                    field.value?.filter((c) => c !== category)
+                                  );
+                                }
+                              }}
+                            >
+                              {category}
+                            </Badge>
+                          );
+                        })}
+                      </div>
+                    );
+                  }}
                 />
-              )}
-            />
-            <Button type="submit">
-              <Search /> Explorar
-            </Button>
+              </div>
+            </ScrollArea>
+            <SheetFooter>
+              <SheetClose asChild>
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="w-fit"
+                  onClick={onClear}
+                >
+                  Limpar
+                </Button>
+              </SheetClose>
+              <SheetClose asChild>
+                <Button type="submit" className="w-fit">
+                  Aplicar
+                </Button>
+              </SheetClose>
+            </SheetFooter>
           </form>
         </Form>
-      </Card>
-    </div>
+      </SheetContent>
+    </Sheet>
   );
 }

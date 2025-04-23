@@ -1,4 +1,4 @@
-import type { EventCategory } from "@/lib/db/prisma/generated";
+import type { EventCategory } from "@/lib/db/models/event";
 
 export const eventCategoryMap = new Map<string, EventCategory>([
   ["Todos", "Event"],

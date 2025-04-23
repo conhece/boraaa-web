@@ -1,21 +1,22 @@
 import { dayjs } from "@/lib/dayjs";
 import type { CustomSearchParams } from "@/lib/types/search";
 import { useMemo } from "react";
-import { useNavigate } from "react-router";
-import { Badge } from "./ui/badge";
+import { useNavigate, useSearchParams } from "react-router";
+// import { Badge } from "./ui/badge";
+import { Button } from "@/components/ui/button";
 
-export function ShortCutBadge({
-  isActive,
-  ...props
-}: React.ComponentProps<typeof Badge> & { isActive?: boolean }) {
-  return (
-    <Badge
-      variant={isActive ? "default" : "secondary"}
-      className="px-4 py-2 rounded-full cursor-pointer"
-      {...props}
-    />
-  );
-}
+// export function ShortCutBadge({
+//   isActive,
+//   ...props
+// }: React.ComponentProps<typeof Badge> & { isActive?: boolean }) {
+//   return (
+//     <Badge
+//       variant={isActive ? "default" : "secondary"}
+//       className="px-4 py-2 rounded-full cursor-pointer"
+//       {...props}
+//     />
+//   );
+// }
 
 type DateType = "today" | "week" | "month";
 
@@ -30,6 +31,7 @@ const options: {
 
 export function DateShortcuts({ params }: { params?: CustomSearchParams }) {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
 
   const dates = useMemo(() => {
     return {
@@ -52,40 +54,43 @@ export function DateShortcuts({ params }: { params?: CustomSearchParams }) {
 
   const handleDate = (type: DateType) => {
     const { today, startOfWeek, endOfWeek, startOfMonth, endOfMonth } = dates;
+    const newSearchParams = new URLSearchParams(searchParams);
+
     switch (type) {
       case "today":
-        navigate({
-          pathname: "/search",
-          search: `?from=${today}`,
-        });
+        newSearchParams.set("from", today);
+        newSearchParams.delete("to"); // Remove 'to' param for today
         break;
       case "week":
-        navigate({
-          pathname: "/search",
-          search: `?from=${startOfWeek}&to=${endOfWeek}`,
-        });
+        newSearchParams.set("from", startOfWeek);
+        newSearchParams.set("to", endOfWeek);
         break;
       case "month":
-        navigate({
-          pathname: "/search",
-          search: `?from=${startOfMonth}&to=${endOfMonth}`,
-        });
+        newSearchParams.set("from", startOfMonth);
+        newSearchParams.set("to", endOfMonth);
         break;
       default:
         throw new Error("Invalid date type");
     }
+
+    // Navigate with updated params
+    navigate({
+      pathname: "/search",
+      search: newSearchParams.toString(),
+    });
   };
 
   return (
-    <div className="flex gap-4">
+    <div className="flex gap-2">
       {options.map((option) => (
-        <ShortCutBadge
+        <Button
           key={option.value}
-          isActive={active === option.value}
+          variant={active === option.value ? "default" : "secondary"}
+          className="rounded-full"
           onClick={() => handleDate(option.value)}
         >
           {option.label}
-        </ShortCutBadge>
+        </Button>
       ))}
     </div>
   );

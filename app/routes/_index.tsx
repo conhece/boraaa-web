@@ -1,5 +1,6 @@
 import { DateShortcuts } from "@/components/date-shortcuts";
 import { EventList, EventListLoading } from "@/components/event-list";
+import { Filters } from "@/components/filters";
 import { Container, PageContent, SectionTitle } from "@/components/page";
 import { SearchCard } from "@/components/search-card";
 import { getEvents } from "@/lib/db/events";
@@ -27,9 +28,6 @@ export async function loader() {
     around: [-23.561097, -46.6585247],
     startsAfter: startDate,
     startsBefore: endDate,
-    // categories: category,
-    // minimumAge: parseInt(minimumAge),
-    // cheapestPrice: parseInt(cheapestPrice),
   });
 
   return { promise };
@@ -46,10 +44,12 @@ export default function LandingPage({ loaderData }: Route.ComponentProps) {
           </h2>
         </div>
         <SearchCard />
-        {/* <MainFilters /> */}
-        <DateShortcuts />
+        <div className="flex items-center gap-2">
+          <DateShortcuts />
+          <Filters />
+        </div>
         <div className="space-y-4">
-          <SectionTitle>Os principais eventos da semana</SectionTitle>
+          <SectionTitle>Os principais eventos de hoje</SectionTitle>
           <Suspense fallback={<EventListLoading />}>
             <EventList promise={loaderData.promise} />
           </Suspense>

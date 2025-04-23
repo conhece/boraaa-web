@@ -1,5 +1,6 @@
 import { DateShortcuts } from "@/components/date-shortcuts";
 import { EventList, EventListLoading } from "@/components/event-list";
+import { Filters } from "@/components/filters";
 import { Container, PageContent, SectionTitle } from "@/components/page";
 import { SearchCard } from "@/components/search-card";
 import { eventCategoryMap } from "@/helpers/events";
@@ -19,11 +20,16 @@ export function meta({}: Route.MetaArgs) {
   ];
 }
 
-function getCategory(param: string | null) {
-  if (!param) return undefined;
-  const category = eventCategoryMap.get(param);
-  if (!category) return undefined;
-  return [category];
+function getCategories(param: string[]): string[] {
+  if (!param) return [];
+  const categories: string[] = [];
+  param.forEach((category) => {
+    const categoryName = eventCategoryMap.get(category);
+    if (categoryName) {
+      categories.push(categoryName);
+    }
+  });
+  return categories;
 }
 
 export async function loader({ request }: Route.LoaderArgs) {
@@ -33,7 +39,7 @@ export async function loader({ request }: Route.LoaderArgs) {
     from: url.searchParams.get("from"),
     to: url.searchParams.get("to"),
     city: url.searchParams.get("city"),
-    category: url.searchParams.get("category"),
+    categories: url.searchParams.getAll("categories"),
   };
 
   const from = params.from ? dayjs(params.from) : dayjs();
@@ -41,13 +47,13 @@ export async function loader({ request }: Route.LoaderArgs) {
   const startDate = from.format("YYYY-MM-DDTHH:mm:ssZ[Z]");
   const endDate = to.endOf("day").format("YYYY-MM-DDTHH:mm:ssZ[Z]");
 
-  const category = getCategory(params.category);
+  const categories = getCategories(params.categories);
 
   const promise = getEvents({
     around: [-23.561097, -46.6585247],
     startsAfter: startDate,
     startsBefore: endDate,
-    categories: category,
+    categories,
     // minimumAge: parseInt(minimumAge),
     // cheapestPrice: parseInt(cheapestPrice),
   });
@@ -70,8 +76,10 @@ export default function SearchPage({ loaderData }: Route.ComponentProps) {
           </h2>
         </div>
         <SearchCard params={params} />
-        {/* <MainFilters data={params} /> */}
-        <DateShortcuts params={params} />
+        <div className="flex items-center gap-2">
+          <DateShortcuts params={params} />
+          <Filters params={params} />
+        </div>
         <div className="space-y-4">
           <SectionTitle>Principais resultados encontrados</SectionTitle>
           <Suspense fallback={<EventListLoading />}>
