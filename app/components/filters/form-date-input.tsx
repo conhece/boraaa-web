@@ -37,6 +37,49 @@ export function FormDateInput({
   onChange,
   description,
 }: DateInputProps) {
+  return (
+    <FormItem className={cn("relative w-full", className)}>
+      <FormLabel>{label}</FormLabel>
+      <Popover>
+        <PopoverTrigger asChild>
+          <FormControl>
+            <Button variant="outline" className="relative h-10">
+              {value?.from ? (
+                value.to ? (
+                  <>
+                    {formatDisplayedDate(value.from)} -{" "}
+                    {formatDisplayedDate(value.to)}
+                  </>
+                ) : (
+                  formatDisplayedDate(value.from)
+                )
+              ) : null}
+              <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+            </Button>
+          </FormControl>
+        </PopoverTrigger>
+        <PopoverContent className="w-auto p-0" align="start">
+          <Calendar
+            mode="range"
+            selected={value}
+            onSelect={onChange}
+            initialFocus
+          />
+        </PopoverContent>
+      </Popover>
+      {description ? <FormDescription>{description}</FormDescription> : null}
+      <FormMessage />
+    </FormItem>
+  );
+}
+
+export function FormDateInputStyled({
+  className,
+  label,
+  value,
+  onChange,
+  description,
+}: DateInputProps) {
   const activeLabel = value && typeof value !== "string";
   return (
     <FormItem className={cn("relative w-full", className)}>

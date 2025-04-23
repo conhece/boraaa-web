@@ -1,6 +1,13 @@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Form, FormField } from "@/components/ui/form";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import {
   Sheet,
@@ -105,34 +112,38 @@ export function Filters({ params }: { params?: CustomSearchParams }) {
                 <FormField
                   control={form.control}
                   name="categories"
-                  render={({ field }) => {
-                    return (
-                      <div className="w-full flex flex-wrap gap-4">
-                        {categoriesList.map((category) => {
-                          const isActive = field.value?.includes(category);
-                          return (
-                            <Badge
-                              key={category}
-                              id={category}
-                              variant={isActive ? "default" : "secondary"}
-                              className="cursor-pointer"
-                              onClick={(e) => {
-                                if (!isActive) {
-                                  field.onChange([...field.value, category]);
-                                } else {
-                                  field.onChange(
-                                    field.value?.filter((c) => c !== category)
-                                  );
-                                }
-                              }}
-                            >
-                              {category}
-                            </Badge>
-                          );
-                        })}
-                      </div>
-                    );
-                  }}
+                  render={({ field }) => (
+                    <FormItem className="space-y-2">
+                      <FormLabel>Categorias</FormLabel>
+                      <FormControl>
+                        <div className="w-full flex flex-wrap gap-4">
+                          {categoriesList.map((category) => {
+                            const isActive = field.value?.includes(category);
+                            return (
+                              <Badge
+                                key={category}
+                                id={category}
+                                variant={isActive ? "default" : "secondary"}
+                                className="cursor-pointer"
+                                onClick={(e) => {
+                                  if (!isActive) {
+                                    field.onChange([...field.value, category]);
+                                  } else {
+                                    field.onChange(
+                                      field.value?.filter((c) => c !== category)
+                                    );
+                                  }
+                                }}
+                              >
+                                {category}
+                              </Badge>
+                            );
+                          })}
+                        </div>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
                 />
               </div>
             </ScrollArea>
