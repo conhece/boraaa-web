@@ -1,4 +1,4 @@
-import type { FilterQuery } from "mongoose";
+import { Types, type FilterQuery } from "mongoose";
 import type { PublicEvent } from "../types/event";
 import { connectToDatabase } from "./connection";
 import { Event, type IEvent } from "./models/event";
@@ -85,7 +85,24 @@ export async function getEvents({
   )
     .lean()
     .exec(); // Get more results if we need to filter by search
-  return results as unknown as PublicEvent[];
+  return results.map((event) => {
+    // console.log(event.name, event.schema.location);
+    const place =
+      typeof event.schema?.location === "string" ? event.schema.location : "";
+    return {
+      id: (event._id as Types.ObjectId).toHexString(),
+      url: event.url,
+      categories: event.categories,
+      name: event.name,
+      about: event.about,
+      image: event.image,
+      duration: event.duration,
+      schedule: event.schedule,
+      cheapestPrice: event.cheapestPrice,
+      minimumAge: event.minimumAge,
+      place,
+    };
+  }) as PublicEvent[];
   // Execute the query
   // return results.map((event) =>
   //   event.toObject({
@@ -96,33 +113,6 @@ export async function getEvents({
   //       delete ret._id;
   //       delete ret.location;
   //       return ret;
-  //     },
-  //   })
-  // );
-  // return results.map((event) =>
-  //   event.toObject({
-  //     transform: (_doc: IEvent, ret: Record<string, any>) => {
-  //       if (ret._id && ret._id instanceof Types.ObjectId) {
-  //         ret.id = ret._id.toHexString();
-  //       }
-
-  //       // Keep only fields defined in PublicEvent type
-  //       const publicEvent: Record<string, any> = {
-  //         id: ret.id,
-  //         url: ret.url,
-  //         categories: ret.categories,
-  //         name: ret.name,
-  //         about: ret.about,
-  //         image: ret.image,
-  //         actor: ret.actor,
-  //         duration: ret.duration,
-  //         schedule: ret.schedule,
-  //         cheapestPrice: ret.cheapestPrice,
-  //         minimumAge: ret.minimumAge,
-  //         place: _doc.schema.location,
-  //       };
-
-  //       return publicEvent;
   //     },
   //   })
   // );

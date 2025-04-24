@@ -65,7 +65,8 @@ function EventSummary({
         <div className="flex flex-wrap items-center gap-2">
           <Classification minimumAge={event.minimumAge} />
           <p className="text-sm text-muted-foreground">
-            {event.schema.location}
+            {/* {event.schema.location} */}
+            {event.place}
           </p>
           <Dot />
           <p className="text-sm text-muted-foreground">
@@ -76,10 +77,10 @@ function EventSummary({
         </div>
       </div>
       <div className="flex flex-wrap gap-2">
-        {event.categories?.map((category) => (
+        {event.categories?.map((category, index) => (
           <Badge
+            key={index}
             variant="secondary"
-            key={category}
             className="text-xs text-muted-foreground"
           >
             {categoryToDisplayMap.get(category)}
