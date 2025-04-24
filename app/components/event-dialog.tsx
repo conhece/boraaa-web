@@ -6,7 +6,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import type { PublicEvent } from "@/lib/db/models/event";
+import type { PublicEvent } from "@/lib/types/event";
 import { SquareArrowOutUpRight } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useSearchParams } from "react-router";

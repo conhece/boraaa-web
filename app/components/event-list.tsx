@@ -1,4 +1,4 @@
-import type { PublicEvent } from "@/lib/db/models/event";
+import type { PublicEvent } from "@/lib/types/event";
 import { use } from "react";
 import { EventCard } from "./event-card";
 import { EventDialog } from "./event-dialog";

@@ -1,34 +1,39 @@
+import { type IEvent, type PublicEvent } from "@/lib/types/event";
 import type { FilterQuery } from "mongoose";
 import { Types } from "mongoose";
 import { connectToDatabase } from "./connection";
-import { Event, type IEvent, type PublicEvent } from "./models/event";
 
 export const DEFAULT_DISTANCE = 10000;
 
 interface Params {
   search?: string | null;
   around: [number, number];
-  startsAfter: string;
-  startsBefore: string;
+  startDate: string;
+  endDate: string;
   categories?: string[];
-  distance?: number;
-  minimumAge?: number;
   cheapestPrice?: number;
+  minimumAge?: number;
+  distance?: number;
   limit?: number;
 }
 
 export async function getEvents({
   search,
   around,
-  startsAfter,
-  startsBefore,
+  startDate,
+  endDate,
   categories,
-  distance = DEFAULT_DISTANCE,
-  minimumAge = 0,
   cheapestPrice = 0,
+  minimumAge = 0,
+  distance = DEFAULT_DISTANCE,
   limit = 36,
 }: Params): Promise<PublicEvent[]> {
-  await connectToDatabase();
+  const db = await connectToDatabase();
+
+  if (!db) {
+    throw new Error("Failed to connect to the database");
+  }
+
   // Build base query object
   const query: FilterQuery<IEvent> = {
     location: {
@@ -43,8 +48,8 @@ export async function getEvents({
     schedule: {
       $elemMatch: {
         startDate: {
-          $gte: startsAfter,
-          $lte: startsBefore,
+          $gte: startDate,
+          $lte: endDate,
         },
       },
     },
@@ -75,7 +80,7 @@ export async function getEvents({
   }
 
   // Execute the geospatial query
-  let results = await Event.find(query).limit(limit); // Get more results if we need to filter by search
+  let results = await db.models.Event.find(query).limit(limit); // Get more results if we need to filter by search
   // Execute the query
   // return results.map((event) =>
   //   event.toObject({

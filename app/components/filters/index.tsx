@@ -25,6 +25,7 @@ import { DEFAULT_DISTANCE } from "@/lib/db/events";
 import type { CustomSearchParams } from "@/lib/types/search";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { FilterIcon } from "lucide-react";
+import { useMemo } from "react";
 import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router";
 import { z } from "zod";
@@ -47,6 +48,8 @@ const formSchema = z.object({
   distance: z.number(),
 });
 
+const defaultDistance = DEFAULT_DISTANCE / 1000;
+
 export function Filters({ params }: { params?: CustomSearchParams }) {
   const navigate = useNavigate();
 
@@ -62,9 +65,18 @@ export function Filters({ params }: { params?: CustomSearchParams }) {
       categories: params?.categories || undefined,
       minimumPrice: params?.price ? Number(params.price) * 100 : 0,
       minimumAge: params?.age ? Number(params.age) : 0,
-      distance: params?.distance ? Number(params.distance) : DEFAULT_DISTANCE,
+      distance: params?.distance ? Number(params.distance) : defaultDistance,
     },
   });
+
+  const isActive = useMemo(() => {
+    if (!params) return false;
+    if (params.categories && params.categories?.length > 0) return true;
+
+    return Object.keys(params || {})
+      .filter((key) => key !== "search" && key !== "categories")
+      .some((key) => params[key as keyof CustomSearchParams] !== null);
+  }, [params]);
 
   function onSubmit(data: z.infer<typeof formSchema>) {
     const { date, categories } = data;
@@ -86,7 +98,7 @@ export function Filters({ params }: { params?: CustomSearchParams }) {
     if (data.minimumAge > 0) {
       newSearchParams.set("age", data.minimumAge.toString());
     }
-    if (data.distance !== DEFAULT_DISTANCE) {
+    if (data.distance !== defaultDistance) {
       newSearchParams.set("distance", data.distance.toString());
     }
     navigate(`/search?${newSearchParams.toString()}`);
@@ -100,7 +112,10 @@ export function Filters({ params }: { params?: CustomSearchParams }) {
   return (
     <Sheet>
       <SheetTrigger asChild>
-        <Button variant="secondary" className="px-4 rounded-full">
+        <Button
+          variant={isActive ? "default" : "secondary"}
+          className="px-4 rounded-full"
+        >
           Filtros <FilterIcon />
         </Button>
       </SheetTrigger>

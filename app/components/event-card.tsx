@@ -1,5 +1,5 @@
 import { categoryToDisplayMap } from "@/helpers/events";
-import type { PublicEvent } from "@/lib/db/models/event";
+import type { PublicEvent } from "@/lib/types/event";
 import { cn } from "@/lib/utils";
 import dayjs from "dayjs";
 import { ImageOff } from "lucide-react";

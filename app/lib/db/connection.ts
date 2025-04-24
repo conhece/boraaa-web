@@ -1,13 +1,22 @@
 import mongoose from "mongoose";
 
-const DATABASE_URL = process.env.DATABASE_URL!;
-
 // Track connection status
 let isConnected = false;
 
-export const connectToDatabase = async () => {
+export async function connectToDatabase() {
   if (isConnected) {
     return mongoose.connection;
+  }
+
+  if (typeof window !== "undefined") {
+    console.log("Not connecting to MongoDB on the client");
+    return;
+  }
+
+  const DATABASE_URL = process.env.DATABASE_URL;
+
+  if (!DATABASE_URL) {
+    throw new Error("DATABASE_URL not found");
   }
 
   try {
@@ -19,4 +28,4 @@ export const connectToDatabase = async () => {
     console.error("Failed to connect to MongoDB:", error);
     throw error;
   }
-};
+}

@@ -26,8 +26,8 @@ export async function loader() {
 
   const promise = getEvents({
     around: [-23.561097, -46.6585247],
-    startsAfter: startDate,
-    startsBefore: endDate,
+    startDate,
+    endDate,
   });
 
   return { promise };

@@ -56,11 +56,11 @@ export async function loader({ request }: Route.LoaderArgs) {
   const promise = getEvents({
     search: params.search,
     around: [-23.561097, -46.6585247],
-    startsAfter: startDate,
-    startsBefore: endDate,
+    startDate,
+    endDate,
     categories,
-    minimumAge: params.age ? parseInt(params.age) : undefined,
     cheapestPrice: params.price ? parseInt(params.price) : undefined,
+    minimumAge: params.age ? parseInt(params.age) : undefined,
     distance: params.distance ? parseInt(params.distance) * 1000 : undefined,
   });
 
