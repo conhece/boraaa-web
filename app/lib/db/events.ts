@@ -1,7 +1,7 @@
 import type { FilterQuery } from "mongoose";
+import { Types } from "mongoose";
 import { connectToDatabase } from "./connection";
 import { Event, type IEvent } from "./models/event";
-import { Types } from "mongoose";
 
 interface Params {
   search?: string | null;
@@ -25,7 +25,7 @@ export async function getEvents({
   minimumAge = 0,
   cheapestPrice = 0,
   limit = 36,
-}: Params) {
+}: Params): Promise<IEvent[]> {
   await connectToDatabase();
   // Build base query object
   const query: FilterQuery<IEvent> = {
@@ -66,6 +66,9 @@ export async function getEvents({
     query.$or = [
       { name: { $regex: search, $options: "i" } },
       { about: { $regex: search, $options: "i" } },
+      {
+        "schema.location": { $regex: search, $options: "i" },
+      },
     ];
   }
 
@@ -79,6 +82,7 @@ export async function getEvents({
           ret.id = ret._id.toHexString();
         }
         delete ret._id;
+        delete ret.location;
         return ret;
       },
     })
