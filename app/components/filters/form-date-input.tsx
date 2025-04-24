@@ -53,12 +53,19 @@ export function FormDateInput({
                 ) : (
                   formatDisplayedDate(value.from)
                 )
-              ) : null}
+              ) : (
+                <span className="text-xs text-muted-foreground">
+                  Selecione suas datas
+                </span>
+              )}
               <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
             </Button>
           </FormControl>
         </PopoverTrigger>
-        <PopoverContent className="w-auto p-0" align="start">
+        <PopoverContent
+          className="w-auto p-0 pointer-events-auto"
+          align="start"
+        >
           <Calendar
             mode="range"
             selected={value}

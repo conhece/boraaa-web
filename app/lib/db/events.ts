@@ -95,7 +95,7 @@ export async function getEvents({
     .lean()
     .exec(); // Get more results if we need to filter by search
   return results.map((event) => {
-    console.log(event.name, event.schema.eventAttendanceMode);
+    // console.log(event.name, event.schema.eventAttendanceMode);
     const place =
       typeof event.schema?.location === "string" ? event.schema.location : "";
     return {
