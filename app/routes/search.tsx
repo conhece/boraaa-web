@@ -49,6 +49,7 @@ export async function loader({ request }: Route.LoaderArgs) {
     distance: url.searchParams.get("distance"),
   };
 
+  const mode = params.mode ? (params.mode as EventMode) : undefined;
   const from = params.from ? dayjs(params.from) : dayjs();
   const to = params.to ? dayjs(params.to) : from;
   const startDate = from.format("YYYY-MM-DDTHH:mm:ssZ[Z]");
@@ -57,7 +58,7 @@ export async function loader({ request }: Route.LoaderArgs) {
   const categories = getCategories(params.categories);
 
   const promise = getEvents({
-    mode: params.mode as EventMode,
+    mode,
     search: params.search,
     around: [-23.561097, -46.6585247],
     startDate,
