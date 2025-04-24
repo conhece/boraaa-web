@@ -44,8 +44,17 @@ function getDate(date: string) {
 
 function EventImage({ src, className, ...props }: React.ComponentProps<"img">) {
   return (
-    <div className={cn("w-full min-h-[148px] h-auto", className)}>
-      {src ? <ImageComponent src={src} {...props} /> : <ImageOff />}
+    <div
+      className={cn(
+        "w-full min-h-[148px] h-[172px] lg:h-[148px] overflow-hidden",
+        className
+      )}
+    >
+      {src ? (
+        <ImageComponent src={src} className="object-cover" {...props} />
+      ) : (
+        <ImageOff />
+      )}
     </div>
   );
 }
