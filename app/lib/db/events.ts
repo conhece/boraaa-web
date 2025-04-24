@@ -1,6 +1,8 @@
 import type { FilterQuery } from "mongoose";
 import { connectToDatabase } from "./connection";
 import { Event, type IEvent } from "./models/event";
+import { Types } from "mongoose";
+
 interface Params {
   search?: string | null;
   around: [number, number];
@@ -10,6 +12,7 @@ interface Params {
   distance?: number;
   minimumAge?: number;
   cheapestPrice?: number;
+  limit?: number;
 }
 
 export async function getEvents({
@@ -18,9 +21,10 @@ export async function getEvents({
   startsAfter,
   startsBefore,
   categories,
-  distance = 1000,
+  distance = 10000,
   minimumAge = 0,
   cheapestPrice = 0,
+  limit = 36,
 }: Params) {
   await connectToDatabase();
   // Build base query object
@@ -57,23 +61,26 @@ export async function getEvents({
     query.minimumAge = { $gte: minimumAge };
   }
 
-  // Execute the geospatial query
-  let results = await Event.find(query).limit(search ? 50 : 12); // Get more results if we need to filter by search
-
   // If search is provided, filter the results in memory
   if (search) {
-    const searchRegex = new RegExp(search, "i"); // Case-insensitive search
-    results = results.filter(
-      (event) =>
-        searchRegex.test(event.name) ||
-        searchRegex.test(event.about) ||
-        searchRegex.test(event.schema.location)
-    );
-
-    // Limit to 12 results after filtering
-    results = results.slice(0, 12);
+    query.$or = [
+      { name: { $regex: search, $options: "i" } },
+      { about: { $regex: search, $options: "i" } },
+    ];
   }
 
+  // Execute the geospatial query
+  let results = await Event.find(query).limit(limit); // Get more results if we need to filter by search
   // Execute the query
-  return results.map((event) => event._doc);
+  return results.map((event) =>
+    event.toObject({
+      transform: (_doc: IEvent, ret: Record<string, any>) => {
+        if (ret._id && ret._id instanceof Types.ObjectId) {
+          ret.id = ret._id.toHexString();
+        }
+        delete ret._id;
+        return ret;
+      },
+    })
+  );
 }
