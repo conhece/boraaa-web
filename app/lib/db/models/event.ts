@@ -62,6 +62,21 @@ export interface IEvent extends Document {
   modifiedAt: Date | null;
 }
 
+export type PublicEvent = Pick<
+  IEvent,
+  | "url"
+  | "categories"
+  | "name"
+  | "about"
+  | "image"
+  | "actor"
+  | "duration"
+  | "schedule"
+  | "cheapestPrice"
+  | "minimumAge"
+  | "schema"
+>;
+
 // Define a proper GeoJSON schema for the location
 const PointSchema = new Schema({
   type: {

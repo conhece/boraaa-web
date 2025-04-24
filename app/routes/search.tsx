@@ -41,6 +41,9 @@ export async function loader({ request }: Route.LoaderArgs) {
     to: url.searchParams.get("to"),
     city: url.searchParams.get("city"),
     categories: url.searchParams.getAll("categories"),
+    price: url.searchParams.get("price"),
+    age: url.searchParams.get("age"),
+    distance: url.searchParams.get("distance"),
   };
 
   const from = params.from ? dayjs(params.from) : dayjs();
@@ -56,8 +59,9 @@ export async function loader({ request }: Route.LoaderArgs) {
     startsAfter: startDate,
     startsBefore: endDate,
     categories,
-    // minimumAge: parseInt(minimumAge),
-    // cheapestPrice: parseInt(cheapestPrice),
+    minimumAge: params.age ? parseInt(params.age) : undefined,
+    cheapestPrice: params.price ? parseInt(params.price) : undefined,
+    distance: params.distance ? parseInt(params.distance) * 1000 : undefined,
   });
 
   return {

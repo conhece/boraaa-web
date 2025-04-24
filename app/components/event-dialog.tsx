@@ -6,7 +6,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import type { IEvent } from "@/lib/db/models/event";
+import type { PublicEvent } from "@/lib/db/models/event";
 import { SquareArrowOutUpRight } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useSearchParams } from "react-router";
@@ -15,9 +15,9 @@ import ExternalLink from "./external-link";
 import { ScrollArea } from "./ui/scroll-area";
 import { Skeleton } from "./ui/skeleton";
 
-export function EventDialog({ events }: { events: IEvent[] }) {
+export function EventDialog({ events }: { events: PublicEvent[] }) {
   const [searchParams, setSearchParams] = useSearchParams();
-  const [selected, setSelected] = useState<IEvent | null>(null);
+  const [selected, setSelected] = useState<PublicEvent | null>(null);
   const [open, setOpen] = useState(false);
 
   const eventName = searchParams.get("event");

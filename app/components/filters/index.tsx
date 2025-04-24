@@ -21,6 +21,7 @@ import {
 } from "@/components/ui/sheet";
 import { eventCategoryMap } from "@/helpers/events";
 import { dayjs } from "@/lib/dayjs";
+import { DEFAULT_DISTANCE } from "@/lib/db/events";
 import type { CustomSearchParams } from "@/lib/types/search";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { FilterIcon } from "lucide-react";
@@ -28,6 +29,7 @@ import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router";
 import { z } from "zod";
 import { FormDateInput } from "./form-date-input";
+import { FormSlider } from "./form-slider";
 
 // get categories from eventCategoryMap
 const categoriesList = Array.from(eventCategoryMap.keys()).sort();
@@ -39,7 +41,10 @@ const formSchema = z.object({
       to: z.date().optional(),
     })
     .optional(),
-  categories: z.array(z.string()),
+  categories: z.array(z.string()).optional(),
+  minimumPrice: z.number(),
+  minimumAge: z.number(),
+  distance: z.number(),
 });
 
 export function Filters({ params }: { params?: CustomSearchParams }) {
@@ -55,6 +60,9 @@ export function Filters({ params }: { params?: CustomSearchParams }) {
           }
         : undefined,
       categories: params?.categories || undefined,
+      minimumPrice: params?.price ? Number(params.price) * 100 : 0,
+      minimumAge: params?.age ? Number(params.age) : 0,
+      distance: params?.distance ? Number(params.distance) : DEFAULT_DISTANCE,
     },
   });
 
@@ -71,6 +79,15 @@ export function Filters({ params }: { params?: CustomSearchParams }) {
       categories.forEach((category) =>
         newSearchParams.append("categories", category)
       );
+    }
+    if (data.minimumPrice > 0) {
+      newSearchParams.set("price", (data.minimumPrice / 100).toString());
+    }
+    if (data.minimumAge > 0) {
+      newSearchParams.set("age", data.minimumAge.toString());
+    }
+    if (data.distance !== DEFAULT_DISTANCE) {
+      newSearchParams.set("distance", data.distance.toString());
     }
     navigate(`/search?${newSearchParams.toString()}`);
   }
@@ -97,7 +114,7 @@ export function Filters({ params }: { params?: CustomSearchParams }) {
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)}>
             <ScrollArea className="h-[calc(100vh-164px)]">
-              <div className="px-4 h-full flex flex-col gap-4">
+              <div className="px-4 h-full flex flex-col gap-6">
                 <FormField
                   control={form.control}
                   name="date"
@@ -125,9 +142,12 @@ export function Filters({ params }: { params?: CustomSearchParams }) {
                                 id={category}
                                 variant={isActive ? "default" : "secondary"}
                                 className="cursor-pointer"
-                                onClick={(e) => {
+                                onClick={() => {
                                   if (!isActive) {
-                                    field.onChange([...field.value, category]);
+                                    field.onChange([
+                                      ...(field.value ?? []),
+                                      category,
+                                    ]);
                                   } else {
                                     field.onChange(
                                       field.value?.filter((c) => c !== category)
@@ -143,6 +163,59 @@ export function Filters({ params }: { params?: CustomSearchParams }) {
                       </FormControl>
                       <FormMessage />
                     </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="minimumPrice"
+                  render={({ field }) => (
+                    <FormSlider
+                      label="Preço mínimo"
+                      step={1000}
+                      min={0}
+                      max={15000}
+                      currency
+                      value={[field.value ?? 0]}
+                      onValueChange={(value) => {
+                        const valueNumber = Number(value[0]);
+                        field.onChange(valueNumber);
+                      }}
+                    />
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="minimumAge"
+                  render={({ field }) => (
+                    <FormSlider
+                      label="Idade mínima"
+                      step={2}
+                      min={0}
+                      max={18}
+                      value={[field.value ?? 0]}
+                      onValueChange={(value) => {
+                        const valueNumber = Number(value[0]);
+                        field.onChange(valueNumber);
+                      }}
+                    />
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="distance"
+                  render={({ field }) => (
+                    <FormSlider
+                      label="Distância máxima"
+                      step={1}
+                      min={2}
+                      max={100}
+                      sufix="Kms"
+                      value={[field.value]}
+                      onValueChange={(value) => {
+                        const valueNumber = Number(value[0]);
+                        field.onChange(valueNumber);
+                      }}
+                    />
                   )}
                 />
               </div>

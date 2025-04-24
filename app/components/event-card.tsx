@@ -1,5 +1,5 @@
 import { categoryToDisplayMap } from "@/helpers/events";
-import type { IEvent } from "@/lib/db/models/event";
+import type { PublicEvent } from "@/lib/db/models/event";
 import { cn } from "@/lib/utils";
 import dayjs from "dayjs";
 import { ImageOff } from "lucide-react";
@@ -54,7 +54,7 @@ function EventSummary({
   event,
   className,
 }: {
-  event: IEvent;
+  event: PublicEvent;
   className?: string;
 }) {
   const date = event?.schedule ? getDate(event.schedule[0].startDate) : "";
@@ -94,7 +94,7 @@ function EventCard({
   event,
   className,
 }: {
-  event: IEvent | null;
+  event: PublicEvent | null;
   className?: string;
 }) {
   const [searcParamss, setSearchParams] = useSearchParams();

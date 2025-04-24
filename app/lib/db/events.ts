@@ -1,7 +1,9 @@
 import type { FilterQuery } from "mongoose";
 import { Types } from "mongoose";
 import { connectToDatabase } from "./connection";
-import { Event, type IEvent } from "./models/event";
+import { Event, type IEvent, type PublicEvent } from "./models/event";
+
+export const DEFAULT_DISTANCE = 10000;
 
 interface Params {
   search?: string | null;
@@ -21,11 +23,11 @@ export async function getEvents({
   startsAfter,
   startsBefore,
   categories,
-  distance = 10000,
+  distance = DEFAULT_DISTANCE,
   minimumAge = 0,
   cheapestPrice = 0,
   limit = 36,
-}: Params): Promise<IEvent[]> {
+}: Params): Promise<PublicEvent[]> {
   await connectToDatabase();
   // Build base query object
   const query: FilterQuery<IEvent> = {
@@ -75,15 +77,42 @@ export async function getEvents({
   // Execute the geospatial query
   let results = await Event.find(query).limit(limit); // Get more results if we need to filter by search
   // Execute the query
+  // return results.map((event) =>
+  //   event.toObject({
+  //     transform: (_doc: IEvent, ret: Record<string, any>) => {
+  //       if (ret._id && ret._id instanceof Types.ObjectId) {
+  //         ret.id = ret._id.toHexString();
+  //       }
+  //       delete ret._id;
+  //       delete ret.location;
+  //       return ret;
+  //     },
+  //   })
+  // );
   return results.map((event) =>
     event.toObject({
       transform: (_doc: IEvent, ret: Record<string, any>) => {
         if (ret._id && ret._id instanceof Types.ObjectId) {
           ret.id = ret._id.toHexString();
         }
-        delete ret._id;
-        delete ret.location;
-        return ret;
+
+        // Keep only fields defined in PublicEvent type
+        const publicEvent: Record<string, any> = {
+          id: ret.id,
+          url: ret.url,
+          categories: ret.categories,
+          name: ret.name,
+          about: ret.about,
+          image: ret.image,
+          actor: ret.actor,
+          duration: ret.duration,
+          schedule: ret.schedule,
+          cheapestPrice: ret.cheapestPrice,
+          minimumAge: ret.minimumAge,
+          schema: ret.schema,
+        };
+
+        return publicEvent;
       },
     })
   );
