@@ -1,11 +1,13 @@
 import { DateShortcuts } from "@/components/date-shortcuts";
 import { EventList, EventListLoading } from "@/components/event-list";
 import { Filters } from "@/components/filters";
+import { ModeTabs } from "@/components/mode-tabs";
 import { Container, PageContent, SectionTitle } from "@/components/page";
 import { SearchCard } from "@/components/search-card";
 import { eventCategoryMap } from "@/helpers/events";
 import { dayjs } from "@/lib/dayjs";
 import { getEvents } from "@/lib/db/events";
+import type { EventMode } from "@/lib/types/search";
 import { Suspense } from "react";
 import type { Route } from "./+types/search";
 
@@ -36,6 +38,7 @@ export async function loader({ request }: Route.LoaderArgs) {
   const url = new URL(request.url);
 
   const params = {
+    mode: url.searchParams.get("mode"),
     search: url.searchParams.get("search"),
     from: url.searchParams.get("from"),
     to: url.searchParams.get("to"),
@@ -54,6 +57,7 @@ export async function loader({ request }: Route.LoaderArgs) {
   const categories = getCategories(params.categories);
 
   const promise = getEvents({
+    mode: params.mode as EventMode,
     search: params.search,
     around: [-23.561097, -46.6585247],
     startDate,
@@ -86,6 +90,7 @@ export default function SearchPage({ loaderData }: Route.ComponentProps) {
           <DateShortcuts params={params} />
           <Filters params={params} />
         </div>
+        <ModeTabs params={params} />
         <div className="space-y-4">
           <SectionTitle>Principais resultados encontrados</SectionTitle>
           <Suspense fallback={<EventListLoading />}>

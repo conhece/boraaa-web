@@ -50,6 +50,8 @@ const formSchema = z.object({
 
 const defaultDistance = DEFAULT_DISTANCE / 1000;
 
+const nonFilterParams = ["mode", "search", "categories"];
+
 export function Filters({ params }: { params?: CustomSearchParams }) {
   const navigate = useNavigate();
 
@@ -74,7 +76,7 @@ export function Filters({ params }: { params?: CustomSearchParams }) {
     if (params.categories && params.categories?.length > 0) return true;
 
     return Object.keys(params || {})
-      .filter((key) => key !== "search" && key !== "categories")
+      .filter((key) => !nonFilterParams.includes(key))
       .some((key) => params[key as keyof CustomSearchParams] !== null);
   }, [params]);
 

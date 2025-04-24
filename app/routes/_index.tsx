@@ -1,6 +1,7 @@
 import { DateShortcuts } from "@/components/date-shortcuts";
 import { EventList, EventListLoading } from "@/components/event-list";
 import { Filters } from "@/components/filters";
+import { ModeTabs } from "@/components/mode-tabs";
 import { Container, PageContent, SectionTitle } from "@/components/page";
 import { SearchCard } from "@/components/search-card";
 import { getEvents } from "@/lib/db/events";
@@ -48,6 +49,7 @@ export default function LandingPage({ loaderData }: Route.ComponentProps) {
           <DateShortcuts />
           <Filters />
         </div>
+        <ModeTabs />
         <div className="space-y-4">
           <SectionTitle>Os principais eventos de hoje</SectionTitle>
           <Suspense fallback={<EventListLoading />}>

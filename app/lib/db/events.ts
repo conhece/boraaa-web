@@ -1,11 +1,13 @@
 import { Types, type FilterQuery } from "mongoose";
 import type { PublicEvent } from "../types/event";
+import type { EventMode } from "../types/search";
 import { connectToDatabase } from "./connection";
 import { Event, type IEvent } from "./models/event";
 
 export const DEFAULT_DISTANCE = 10000;
 
 interface Params {
+  mode?: EventMode | null;
   search?: string | null;
   around: [number, number];
   startDate: string;
@@ -18,6 +20,7 @@ interface Params {
 }
 
 export async function getEvents({
+  mode = "offline",
   search,
   around,
   startDate,
@@ -49,6 +52,12 @@ export async function getEvents({
       },
     },
   };
+
+  if (mode === "offline") {
+    query["schema.eventAttendanceMode"] = { $ne: "OnlineEventAttendanceMode" };
+  } else {
+    query["schema.eventAttendanceMode"] = "OnlineEventAttendanceMode";
+  }
 
   // Conditionally add filters
   if (categories && categories.length > 0) {
@@ -86,7 +95,7 @@ export async function getEvents({
     .lean()
     .exec(); // Get more results if we need to filter by search
   return results.map((event) => {
-    // console.log(event.name, event.schema.location);
+    console.log(event.name, event.schema.eventAttendanceMode);
     const place =
       typeof event.schema?.location === "string" ? event.schema.location : "";
     return {
