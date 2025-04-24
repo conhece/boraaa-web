@@ -1,6 +1,64 @@
 // models/Event.ts
-import { EventCategoryEnum, type IEvent } from "@/lib/types/event";
-import mongoose, { Schema } from "mongoose";
+import mongoose, { Document, Schema } from "mongoose";
+
+// Define enum values for EventCategory
+export const EventCategoryEnum = [
+  "Event",
+  "BusinessEvent",
+  "ChildrensEvent",
+  "ComedyEvent",
+  "CourseInstance",
+  "DanceEvent",
+  "DeliveryEvent",
+  "EducationEvent",
+  "EventSeries",
+  "ExhibitionEvent",
+  "Festival",
+  "FoodEvent",
+  "Hackathon",
+  "LiteraryEvent",
+  "MusicEvent",
+  "PublicationEvent",
+  "SaleEvent",
+  "ScreeningEvent",
+  "SocialEvent",
+  "SportsEvent",
+  "TheaterEvent",
+  "VisualArtsEvent",
+  "OlderAudienceEvent",
+  "HealthEvent",
+  "TechnologyEvent",
+  "TourismEvent",
+] as const;
+
+export interface IEvent extends Document {
+  url: string;
+  site: string;
+  categories: (typeof EventCategoryEnum)[number][];
+  source: string | null;
+  name: string | null;
+  about: string | null;
+  image: string | null;
+  actor: string | null;
+  duration: number | null;
+  schedule:
+    | {
+        startDate: string;
+        endDate?: string;
+        [key: string]: any;
+      }[]
+    | null;
+  cheapestPrice: number | null;
+  minimumAge: number | null;
+  schema: any | null;
+  location: {
+    type: string;
+    coordinates: number[];
+  } | null;
+  createdAt: Date;
+  updatedAt: Date;
+  modifiedAt: Date | null;
+}
 
 // Define a proper GeoJSON schema for the location
 const PointSchema = new Schema({
@@ -62,4 +120,4 @@ EventSchema.index({ "schedule.startDate": 1 });
 
 // Check if model exists already to prevent duplicate model error during HMR
 export const Event =
-  mongoose.models.Event || mongoose.model<IEvent>("Event", EventSchema);
+  mongoose.models?.Event || mongoose.model<IEvent>("Event", EventSchema);

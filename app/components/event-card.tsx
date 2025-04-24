@@ -1,12 +1,12 @@
+import { ImageComponent } from "@/components/image";
+import { Badge } from "@/components/ui/badge";
+import { Card } from "@/components/ui/card";
 import { categoryToDisplayMap } from "@/helpers/events";
+import { dayjs } from "@/lib/dayjs";
 import type { PublicEvent } from "@/lib/types/event";
 import { cn } from "@/lib/utils";
-import dayjs from "dayjs";
 import { ImageOff } from "lucide-react";
 import { useSearchParams } from "react-router";
-import { ImageComponent } from "./image";
-import { Badge } from "./ui/badge";
-import { Card } from "./ui/card";
 
 function Dot() {
   return (

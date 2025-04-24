@@ -1,7 +1,7 @@
-import { type IEvent, type PublicEvent } from "@/lib/types/event";
 import type { FilterQuery } from "mongoose";
-import { Types } from "mongoose";
+import type { PublicEvent } from "../types/event";
 import { connectToDatabase } from "./connection";
+import { Event, type IEvent } from "./models/event";
 
 export const DEFAULT_DISTANCE = 10000;
 
@@ -27,13 +27,8 @@ export async function getEvents({
   minimumAge = 0,
   distance = DEFAULT_DISTANCE,
   limit = 36,
-}: Params): Promise<PublicEvent[]> {
-  const db = await connectToDatabase();
-
-  if (!db) {
-    throw new Error("Failed to connect to the database");
-  }
-
+}: Params) {
+  await connectToDatabase();
   // Build base query object
   const query: FilterQuery<IEvent> = {
     location: {
@@ -80,7 +75,17 @@ export async function getEvents({
   }
 
   // Execute the geospatial query
-  let results = await db.models.Event.find(query).limit(limit); // Get more results if we need to filter by search
+  const results = await Event.find(
+    query,
+    "url categories name about image actor duration schedule cheapestPrice minimumAge schema",
+    {
+      limit,
+      skip: 0,
+    }
+  )
+    .lean()
+    .exec(); // Get more results if we need to filter by search
+  return results as unknown as PublicEvent[];
   // Execute the query
   // return results.map((event) =>
   //   event.toObject({
@@ -94,31 +99,31 @@ export async function getEvents({
   //     },
   //   })
   // );
-  return results.map((event) =>
-    event.toObject({
-      transform: (_doc: IEvent, ret: Record<string, any>) => {
-        if (ret._id && ret._id instanceof Types.ObjectId) {
-          ret.id = ret._id.toHexString();
-        }
+  // return results.map((event) =>
+  //   event.toObject({
+  //     transform: (_doc: IEvent, ret: Record<string, any>) => {
+  //       if (ret._id && ret._id instanceof Types.ObjectId) {
+  //         ret.id = ret._id.toHexString();
+  //       }
 
-        // Keep only fields defined in PublicEvent type
-        const publicEvent: Record<string, any> = {
-          id: ret.id,
-          url: ret.url,
-          categories: ret.categories,
-          name: ret.name,
-          about: ret.about,
-          image: ret.image,
-          actor: ret.actor,
-          duration: ret.duration,
-          schedule: ret.schedule,
-          cheapestPrice: ret.cheapestPrice,
-          minimumAge: ret.minimumAge,
-          schema: ret.schema,
-        };
+  //       // Keep only fields defined in PublicEvent type
+  //       const publicEvent: Record<string, any> = {
+  //         id: ret.id,
+  //         url: ret.url,
+  //         categories: ret.categories,
+  //         name: ret.name,
+  //         about: ret.about,
+  //         image: ret.image,
+  //         actor: ret.actor,
+  //         duration: ret.duration,
+  //         schedule: ret.schedule,
+  //         cheapestPrice: ret.cheapestPrice,
+  //         minimumAge: ret.minimumAge,
+  //         place: _doc.schema.location,
+  //       };
 
-        return publicEvent;
-      },
-    })
-  );
+  //       return publicEvent;
+  //     },
+  //   })
+  // );
 }
