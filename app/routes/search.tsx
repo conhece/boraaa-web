@@ -4,11 +4,14 @@ import { Filters } from "@/components/filters";
 import { ModeTabs } from "@/components/mode-tabs";
 import { Container, PageContent, SectionTitle } from "@/components/page";
 import { SearchCard } from "@/components/search-card";
-import { eventCategoryMap } from "@/helpers/events";
+import { getCategoriesFromParams } from "@/helpers/events";
+import { locationCookie } from "@/lib/cookies.server";
 import { dayjs } from "@/lib/dayjs";
 import { getEvents } from "@/lib/db/events";
+import { getClientIP, getUserLocation } from "@/lib/ipapi";
 import type { EventMode } from "@/lib/types/search";
 import { Suspense } from "react";
+import { data } from "react-router";
 import type { Route } from "./+types/search";
 
 export function meta({}: Route.MetaArgs) {
@@ -22,19 +25,20 @@ export function meta({}: Route.MetaArgs) {
   ];
 }
 
-function getCategories(param: string[]): string[] {
-  if (!param) return [];
-  const categories: string[] = [];
-  param.forEach((category) => {
-    const categoryName = eventCategoryMap.get(category);
-    if (categoryName) {
-      categories.push(categoryName);
-    }
-  });
-  return categories;
-}
-
 export async function loader({ request }: Route.LoaderArgs) {
+  const cookieHeader = request.headers.get("Cookie");
+  const cookie = (await locationCookie.parse(cookieHeader)) || {};
+
+  let updateCookie = false;
+  let around = cookie.around || null;
+  if (!around) {
+    // Get user location based on IP address
+    const ip = getClientIP(request);
+    around = await getUserLocation(ip);
+    cookie.around = around;
+    updateCookie = true;
+  }
+
   const url = new URL(request.url);
 
   const params = {
@@ -56,13 +60,13 @@ export async function loader({ request }: Route.LoaderArgs) {
   const to = params.to ? dayjs(params.to) : from;
   const startDate = from.format("YYYY-MM-DDTHH:mm:ssZ[Z]");
   const endDate = to.endOf("day").format("YYYY-MM-DDTHH:mm:ssZ[Z]");
-  const categories = getCategories(params.categories);
+  const categories = getCategoriesFromParams(params.categories);
   const page = parseInt(url.searchParams.get("page") || "1");
 
   const promise = getEvents({
     mode,
     search: params.search,
-    around: [-23.561097, -46.6585247],
+    around,
     startDate,
     endDate,
     categories,
@@ -72,10 +76,18 @@ export async function loader({ request }: Route.LoaderArgs) {
     page,
   });
 
-  return {
-    params,
-    promise,
-  };
+  if (!updateCookie) {
+    return data({ params, promise });
+  }
+
+  return data(
+    { params, promise },
+    {
+      headers: {
+        "Set-Cookie": await locationCookie.serialize(cookie),
+      },
+    }
+  );
 }
 
 export default function SearchPage({ loaderData }: Route.ComponentProps) {

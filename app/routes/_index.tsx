@@ -4,9 +4,12 @@ import { Filters } from "@/components/filters";
 import { ModeTabs } from "@/components/mode-tabs";
 import { Container, PageContent, SectionTitle } from "@/components/page";
 import { SearchCard } from "@/components/search-card";
+import { locationCookie } from "@/lib/cookies.server";
 import { getEvents } from "@/lib/db/events";
+import { getClientIP, getUserLocation } from "@/lib/ipapi";
 import dayjs from "dayjs";
 import { Suspense } from "react";
+import { data } from "react-router";
 import type { Route } from "./+types/_index";
 
 export function meta({}: Route.MetaArgs) {
@@ -20,18 +23,42 @@ export function meta({}: Route.MetaArgs) {
   ];
 }
 
-export async function loader() {
+export async function loader({ request }: Route.LoaderArgs) {
+  const cookieHeader = request.headers.get("Cookie");
+  const cookie = (await locationCookie.parse(cookieHeader)) || {};
+
+  let updateCookie = false;
+  let around = cookie.around || null;
+  if (!around) {
+    // Get user location based on IP address
+    const ip = getClientIP(request);
+    around = await getUserLocation(ip);
+    cookie.around = around;
+    updateCookie = true;
+  }
+
   const today = dayjs();
   const startDate = today.format("YYYY-MM-DDTHH:mm:ssZ[Z]");
   const endDate = today.endOf("day").format("YYYY-MM-DDTHH:mm:ssZ[Z]");
 
   const promise = getEvents({
-    around: [-23.561097, -46.6585247],
+    around,
     startDate,
     endDate,
   });
 
-  return { promise };
+  if (!updateCookie) {
+    return data({ promise });
+  }
+
+  return data(
+    { promise },
+    {
+      headers: {
+        "Set-Cookie": await locationCookie.serialize(cookie),
+      },
+    }
+  );
 }
 
 export default function LandingPage({ loaderData }: Route.ComponentProps) {

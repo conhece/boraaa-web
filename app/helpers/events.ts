@@ -37,3 +37,15 @@ for (const [displayName, categoryType] of eventCategoryMap.entries()) {
   // this will keep the last one. Adjust logic if needed.
   categoryToDisplayMap.set(categoryType, displayName);
 }
+
+export function getCategoriesFromParams(param: string[]): string[] {
+  if (!param) return [];
+  const categories: string[] = [];
+  param.forEach((category) => {
+    const categoryName = eventCategoryMap.get(category);
+    if (categoryName) {
+      categories.push(categoryName);
+    }
+  });
+  return categories;
+}
