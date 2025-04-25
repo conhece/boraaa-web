@@ -7,7 +7,7 @@ import { SearchCard } from "@/components/search-card";
 import { getCategoriesFromParams } from "@/helpers/events";
 import { locationCookie } from "@/lib/cookies.server";
 import { dayjs } from "@/lib/dayjs";
-import { getEvents } from "@/lib/db/events";
+import { getEvents } from "@/lib/db/events.server";
 import { getClientIP, getUserLocation } from "@/lib/ipapi";
 import type { EventMode } from "@/lib/types/search";
 import { Suspense } from "react";

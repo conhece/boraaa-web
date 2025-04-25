@@ -5,7 +5,7 @@ import { ModeTabs } from "@/components/mode-tabs";
 import { Container, PageContent, SectionTitle } from "@/components/page";
 import { SearchCard } from "@/components/search-card";
 import { locationCookie } from "@/lib/cookies.server";
-import { getEvents } from "@/lib/db/events";
+import { getEvents } from "@/lib/db/events.server";
 import { getClientIP, getUserLocation } from "@/lib/ipapi";
 import dayjs from "dayjs";
 import { Suspense } from "react";

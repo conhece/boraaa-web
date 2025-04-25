@@ -1,4 +1,7 @@
+import dotenv from "dotenv";
 import mongoose from "mongoose";
+
+dotenv.config();
 
 // Track connection status
 let isConnected = false;

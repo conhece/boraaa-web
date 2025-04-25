@@ -1,11 +1,9 @@
-import { logArgs } from "@/helpers/app";
+import { DEFAULT_DISTANCE, logArgs } from "@/helpers/app";
 import { Types, type FilterQuery } from "mongoose";
 import type { EventsResponse, PublicEvent } from "../types/event";
 import type { EventMode } from "../types/search";
-import { connectToDatabase } from "./connection";
+import { connectToDatabase } from "./connection.server";
 import { Event, type IEvent } from "./models/event";
-
-export const DEFAULT_DISTANCE = 10000;
 
 type Params = {
   mode?: EventMode | null;

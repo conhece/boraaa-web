@@ -19,9 +19,9 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
+import { DEFAULT_DISTANCE } from "@/helpers/app";
 import { eventCategoryMap } from "@/helpers/events";
 import { dayjs } from "@/lib/dayjs";
-import { DEFAULT_DISTANCE } from "@/lib/db/events";
 import type { CustomSearchParams } from "@/lib/types/search";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { FilterIcon } from "lucide-react";

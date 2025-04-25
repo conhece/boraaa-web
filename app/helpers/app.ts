@@ -1,3 +1,5 @@
+export const DEFAULT_DISTANCE = 10000;
+
 export const logArgs = (label: string, value?: unknown) => {
   if (process.env.NODE_ENV !== "development") return;
   if (!value) {
