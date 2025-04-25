@@ -50,12 +50,14 @@ export async function loader({ request }: Route.LoaderArgs) {
   };
 
   const mode = params.mode ? (params.mode as EventMode) : undefined;
-  const from = params.from ? dayjs(params.from) : dayjs();
+  // const around = [parseFloat(url.searchParams.get("lng") || "0"),
+  //   parseFloat(url.searchParams.get("lat") || "0")] as [number, number];
+  const from = params.from ? dayjs(params.from) : dayjs().startOf("day");
   const to = params.to ? dayjs(params.to) : from;
   const startDate = from.format("YYYY-MM-DDTHH:mm:ssZ[Z]");
   const endDate = to.endOf("day").format("YYYY-MM-DDTHH:mm:ssZ[Z]");
-
   const categories = getCategories(params.categories);
+  const page = parseInt(url.searchParams.get("page") || "1");
 
   const promise = getEvents({
     mode,
@@ -67,6 +69,7 @@ export async function loader({ request }: Route.LoaderArgs) {
     cheapestPrice: params.price ? parseInt(params.price) : undefined,
     minimumAge: params.age ? parseInt(params.age) : undefined,
     distance: params.distance ? parseInt(params.distance) * 1000 : undefined,
+    page,
   });
 
   return {

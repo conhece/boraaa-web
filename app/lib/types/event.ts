@@ -19,6 +19,17 @@ export type PublicEvent = Pick<
 
 export type EventCategory = IEvent["categories"][number];
 
+export type EventsResponse = {
+  data: PublicEvent[];
+  pagination: {
+    page: number;
+    total: number;
+    totalPages: number;
+    hasNextPage: boolean;
+    hasPrevPage: boolean;
+  };
+};
+
 // export type PublicEvent = {
 //   id: string;
 //   url: string;
