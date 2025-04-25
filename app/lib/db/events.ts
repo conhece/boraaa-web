@@ -56,14 +56,15 @@ export async function getEvents({
   // Calculate skip value for pagination
   const skip = (page - 1) * limit;
 
-  // Convert distance from meters to radians (Earth radius ≈ 6371km)
-  const radiusInRadians = distance / 6371000;
-
   // Build base query object
   const query: FilterQuery<IEvent> = {
     location: {
-      $geoWithin: {
-        $centerSphere: [around, radiusInRadians],
+      $near: {
+        $geometry: {
+          type: "Point",
+          coordinates: around,
+        },
+        $maxDistance: distance,
       },
     },
     schedule: {
@@ -104,8 +105,18 @@ export async function getEvents({
     ];
   }
 
+  // Convert distance from meters to radians (Earth radius ≈ 6371km)
+  const radiusInRadians = distance / 6371000;
+
   // Get total count for pagination
-  const total = await Event.countDocuments(query);
+  const total = await Event.countDocuments({
+    ...query,
+    location: {
+      $geoWithin: {
+        $centerSphere: [around, radiusInRadians],
+      },
+    },
+  });
 
   // Calculate total pages
   const totalPages = Math.ceil(total / limit);
