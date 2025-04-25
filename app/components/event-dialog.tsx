@@ -2,6 +2,7 @@ import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogFooter,
   DialogHeader,
   DialogTitle,
@@ -45,6 +46,9 @@ export function EventDialog({ events }: { events: PublicEvent[] }) {
       <DialogContent className="md:max-w-[900px]">
         <DialogHeader>
           <DialogTitle>Detalhes do evento</DialogTitle>
+          <DialogDescription className="sr-only">
+            {selected?.about ?? "Descrição do evento"}
+          </DialogDescription>
         </DialogHeader>
         {selected ? (
           <>
