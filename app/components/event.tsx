@@ -27,7 +27,8 @@ function EventImage({ src, className, ...props }: React.ComponentProps<"img">) {
 }
 
 function Classification({ minimumAge }: { minimumAge: number | null }) {
-  const isFree = !minimumAge || minimumAge === 0;
+  const isFree = !minimumAge || minimumAge < 10;
+  const ten = minimumAge && minimumAge <= 10 && minimumAge < 12;
   const preTeen = minimumAge && minimumAge >= 12 && minimumAge <= 15;
   const teenagers = minimumAge && minimumAge > 15 && minimumAge < 18;
   const adults = minimumAge && minimumAge >= 18;
@@ -36,6 +37,7 @@ function Classification({ minimumAge }: { minimumAge: number | null }) {
       className={cn(
         "px-[5px] py-0.5 min-w-[20px] text-center text-xs font-medium rounded-sm",
         isFree ? "bg-green-600 text-white" : "",
+        ten ? "bg-blue-500 text-white" : "",
         preTeen ? "bg-yellow-400 text-black" : "",
         teenagers ? "bg-red-500 text-white" : "",
         adults ? "bg-black text-white" : ""

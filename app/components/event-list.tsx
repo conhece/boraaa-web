@@ -1,6 +1,6 @@
 import type { PublicEvent } from "@/lib/types/event";
 import { use } from "react";
-import { EventCard } from "./event-card";
+import { EventCard } from "./event";
 import { EventDialog } from "./event-dialog";
 import { Skeleton } from "./ui/skeleton";
 

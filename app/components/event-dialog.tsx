@@ -10,7 +10,7 @@ import type { PublicEvent } from "@/lib/types/event";
 import { SquareArrowOutUpRight } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useSearchParams } from "react-router";
-import { EventDetails, EventImage } from "./event-card";
+import { EventDetails, EventImage } from "./event";
 import ExternalLink from "./external-link";
 import { ScrollArea } from "./ui/scroll-area";
 import { Skeleton } from "./ui/skeleton";
