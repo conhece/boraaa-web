@@ -1,30 +1,32 @@
-import type { EventCategory } from "@/lib/db/models/event";
+import type { EventCategory } from "@/lib/types/event";
 
 export const eventCategoryMap = new Map<string, EventCategory>([
-  ["Todos", "Event"],
-  ["Event", "Event"],
+  ["Evento", "Event"],
   ["Negócios", "BusinessEvent"],
   ["Infantil", "ChildrensEvent"],
   ["Comédia", "ComedyEvent"],
-  ["CourseInstance", "CourseInstance"],
+  ["Curso", "CourseInstance"],
   ["Dança", "DanceEvent"],
-  ["DeliveryEvent", "DeliveryEvent"],
+  ["Entrega", "DeliveryEvent"],
   ["Educação", "EducationEvent"],
-  ["EventSeries", "EventSeries"],
+  ["Recorrente", "EventSeries"],
   ["Exposição", "ExhibitionEvent"],
   ["Festival", "Festival"],
   ["Culinária", "FoodEvent"],
   ["Hackathon", "Hackathon"],
   ["Literatura", "LiteraryEvent"],
   ["Música", "MusicEvent"],
-  ["PublicationEvent", "PublicationEvent"],
-  ["SaleEvent", "SaleEvent"],
+  ["Publicação", "PublicationEvent"],
+  ["Vendas", "SaleEvent"],
   ["Cinema", "ScreeningEvent"],
-  ["SocialEvent", "SocialEvent"],
-  ["SportsEvent", "SportsEvent"],
+  ["Social", "SocialEvent"],
+  ["Esportes", "SportsEvent"],
   ["Teatro", "TheaterEvent"],
   ["Artes visuais", "VisualArtsEvent"],
-  ["OlderAudienceEvent", "OlderAudienceEvent"],
+  ["3ª idade", "OlderAudienceEvent"],
+  ["Saúde", "HealthEvent"],
+  ["Tecnologia", "TechnologyEvent"],
+  ["Turismo", "TourismEvent"],
 ]);
 
 export const categoryToDisplayMap = new Map<EventCategory, string>();

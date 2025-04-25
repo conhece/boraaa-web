@@ -33,7 +33,9 @@ import { FormDateInput } from "./form-date-input";
 import { FormSlider } from "./form-slider";
 
 // get categories from eventCategoryMap
-const categoriesList = Array.from(eventCategoryMap.keys()).sort();
+const categoriesList = Array.from(eventCategoryMap.keys())
+  .filter((cat) => !["Evento"].includes(cat))
+  .sort();
 
 const formSchema = z.object({
   date: z

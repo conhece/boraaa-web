@@ -44,6 +44,17 @@ dayjs.updateLocale("pt", {
     "Nov",
     "Dez",
   ],
+  weekdays: [
+    "Domingo",
+    "Segunda",
+    "Terça",
+    "Quarta",
+    "Quinta",
+    "Sexta",
+    "Sábado",
+  ],
+  weekdaysShort: ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"],
+  weekdaysMin: ["Do", "Se", "Te", "Qu", "Qu", "Se", "Sa"],
   calendar: {
     sameDay: "[hoje]",
     nextDay: "[amanhã]",

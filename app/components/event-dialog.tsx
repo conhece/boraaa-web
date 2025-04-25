@@ -10,7 +10,7 @@ import type { PublicEvent } from "@/lib/types/event";
 import { SquareArrowOutUpRight } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useSearchParams } from "react-router";
-import { EventImage, EventSummary } from "./event-card";
+import { EventDetails, EventImage } from "./event-card";
 import ExternalLink from "./external-link";
 import { ScrollArea } from "./ui/scroll-area";
 import { Skeleton } from "./ui/skeleton";
@@ -55,7 +55,7 @@ export function EventDialog({ events }: { events: PublicEvent[] }) {
                   alt={selected.name ?? "Imagem do evento"}
                   className="rounded-md overflow-hidden"
                 />
-                <EventSummary event={selected} className="px-0" />
+                <EventDetails event={selected} />
               </div>
               <ScrollArea className="h-[200px] md:h-[300px]">
                 <div className="text-sm text-muted-foreground">

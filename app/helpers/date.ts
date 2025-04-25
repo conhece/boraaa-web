@@ -1,28 +1,21 @@
-import { logError } from "./app";
+import { dayjs } from "@/lib/dayjs";
+import type { PublicEvent } from "@/lib/types/event";
 
-const dateFormatter = new Intl.DateTimeFormat("pt-BR", {
-  dateStyle: "short",
-});
+export const getSummaryDates = (schedule?: PublicEvent["schedule"]) => {
+  if (!schedule) return "";
+  const startDate = schedule[0].startDate;
+  const endDate = schedule[schedule.length - 1].endDate;
+  const start = dayjs(startDate).format("DD/MM");
+  const end = dayjs(endDate).format("DD/MM");
+  if (start === end) return start;
+  const preposition = schedule.length > 2 ? "a" : "e";
+  return `${start} ${preposition} ${end}`;
+};
 
-const dateAndTimeFormatter = new Intl.DateTimeFormat("pt-BR", {
-  dateStyle: "short",
-  timeStyle: "short",
-  timeZone: "America/Sao_Paulo",
-});
-
-export const formatDate = (
-  date?: Date | null,
-  type: "date_time" | "date" = "date"
-) => {
-  if (!date) return "N/E";
-  try {
-    if (type === "date") {
-      return dateFormatter.format(date);
-    }
-    const result = dateAndTimeFormatter.format(date).split(", ");
-    return `${result[0]} às  ${result[1]}`;
-  } catch (error) {
-    logError("formatDate", error);
-    return "N/E";
-  }
+export const getDetailsDates = (schedule?: PublicEvent["schedule"]) => {
+  if (!schedule) return [];
+  const dates = schedule
+    .map((item) => dayjs(item.startDate))
+    .filter((date) => date.isSameOrAfter(dayjs()));
+  return dates.map((date) => date.format("ddd DD/MM HH:mm"));
 };

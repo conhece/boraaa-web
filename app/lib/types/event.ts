@@ -17,6 +17,8 @@ export type PublicEvent = Pick<
   place: string;
 };
 
+export type EventCategory = IEvent["categories"][number];
+
 // export type PublicEvent = {
 //   id: string;
 //   url: string;

@@ -1,16 +1,28 @@
 import { ImageComponent } from "@/components/image";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
+import { logArgs } from "@/helpers/app";
+import { getDetailsDates, getSummaryDates } from "@/helpers/date";
 import { categoryToDisplayMap } from "@/helpers/events";
-import { dayjs } from "@/lib/dayjs";
 import type { PublicEvent } from "@/lib/types/event";
 import { cn } from "@/lib/utils";
 import { ImageOff } from "lucide-react";
 import { useSearchParams } from "react-router";
 
-function Dot() {
+function EventImage({ src, className, ...props }: React.ComponentProps<"img">) {
   return (
-    <div className="w-[3px] min-w-[3px] h-[3px] bg-muted-foreground rounded-full" />
+    <div
+      className={cn(
+        "w-full min-h-[148px] h-[172px] lg:h-[148px] overflow-hidden",
+        className
+      )}
+    >
+      {src ? (
+        <ImageComponent src={src} className="object-cover" {...props} />
+      ) : (
+        <ImageOff />
+      )}
+    </div>
   );
 }
 
@@ -38,23 +50,32 @@ function Classification({ minimumAge }: { minimumAge: number | null }) {
   );
 }
 
-function getDate(date: string) {
-  return dayjs(date).format("DD/MM");
+function Dot() {
+  return (
+    <div className="w-[3px] min-w-[3px] h-[3px] bg-muted-foreground rounded-full" />
+  );
 }
 
-function EventImage({ src, className, ...props }: React.ComponentProps<"img">) {
+function EventCategories({
+  categories,
+}: {
+  categories: PublicEvent["categories"];
+}) {
   return (
-    <div
-      className={cn(
-        "w-full min-h-[148px] h-[172px] lg:h-[148px] overflow-hidden",
-        className
-      )}
-    >
-      {src ? (
-        <ImageComponent src={src} className="object-cover" {...props} />
-      ) : (
-        <ImageOff />
-      )}
+    <div className="flex flex-wrap gap-2">
+      {categories.map((category, index) => {
+        const name = categoryToDisplayMap.get(category);
+        if (!name) logArgs(category);
+        return (
+          <Badge
+            key={index}
+            variant="secondary"
+            className="text-xs text-muted-foreground"
+          >
+            {name ?? "N/E"}
+          </Badge>
+        );
+      })}
     </div>
   );
 }
@@ -66,36 +87,62 @@ function EventSummary({
   event: PublicEvent;
   className?: string;
 }) {
-  const date = event?.schedule ? getDate(event.schedule[0].startDate) : "";
+  const dates = getSummaryDates(event.schedule);
   return (
     <div className={cn("p-4 space-y-4", className)}>
       <div className="space-y-1">
         <p className="text-lg font-medium">{event.name}</p>
-        <div className="flex flex-wrap items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
           <Classification minimumAge={event.minimumAge} />
-          <p className="text-sm text-muted-foreground">
-            {/* {event.schema.location} */}
-            {event.place}
-          </p>
+          <p>{event.place}</p>
           <Dot />
-          <p className="text-sm text-muted-foreground">
-            {event.cheapestPrice === 0 ? "Gratuito" : "Pago"}
-          </p>
+          <p>{event.cheapestPrice === 0 ? "Gratuito" : "Pago"}</p>
           <Dot />
-          <p className="text-sm text-muted-foreground">{date}</p>
+          <p>{dates}</p>
+          {event.duration ? (
+            <>
+              <Dot />
+              <p>{event.duration} min</p>
+            </>
+          ) : null}
         </div>
       </div>
-      <div className="flex flex-wrap gap-2">
-        {event.categories?.map((category, index) => (
-          <Badge
-            key={index}
-            variant="secondary"
-            className="text-xs text-muted-foreground"
-          >
-            {categoryToDisplayMap.get(category)}
-          </Badge>
-        ))}
+      <EventCategories categories={event.categories} />
+    </div>
+  );
+}
+
+function EventDetails({
+  event,
+  className,
+}: {
+  event: PublicEvent;
+  className?: string;
+}) {
+  const dates = getDetailsDates(event.schedule);
+  return (
+    <div className={cn("px-0 py-4 space-y-4", className)}>
+      <div className="space-y-2">
+        <p className="text-lg font-medium">{event.name}</p>
+        <div className="flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
+          <Classification minimumAge={event.minimumAge} />
+          <p>{event.place}</p>
+          <Dot />
+          <p>{event.cheapestPrice === 0 ? "Gratuito" : "Pago"}</p>
+          {event.duration ? (
+            <>
+              <Dot />
+              <p>{event.duration} min</p>
+            </>
+          ) : null}
+        </div>
+        <div className="text-sm text-muted-foreground">
+          {dates.map((date, index) => (
+            <p key={index}>{date}</p>
+          ))}
+        </div>
       </div>
+      <EventCategories categories={event.categories} />
     </div>
   );
 }
@@ -135,4 +182,4 @@ function EventCard({
   );
 }
 
-export { EventCard, EventImage, EventSummary };
+export { EventCard, EventDetails, EventImage, EventSummary };
