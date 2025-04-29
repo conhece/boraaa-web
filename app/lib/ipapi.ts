@@ -3,6 +3,7 @@ import { logArgs } from "@/helpers/app";
 export function getClientIP(request: Request): string {
   // Try multiple common headers in order of reliability
   const forwardedFor = request.headers.get("x-forwarded-for");
+  const nfConnectionIP = request.headers.get("x-nf-client-connection-ip");
   const realIP = request.headers.get("x-real-ip");
   const cfConnectingIP = request.headers.get("cf-connecting-ip"); // Cloudflare
   const fastlyClientIP = request.headers.get("fastly-client-ip"); // Fastly
@@ -17,6 +18,7 @@ export function getClientIP(request: Request): string {
   // Choose the first available IP from most reliable to least
   const clientIP =
     firstForwardedIP ||
+    nfConnectionIP ||
     cfConnectingIP ||
     realIP ||
     fastlyClientIP ||
@@ -36,7 +38,7 @@ export async function getUserLocation(ip: string): Promise<[number, number]> {
   }
 
   try {
-    logArgs("getUserLocation: ", ip);
+    console.log("getUserLocation: ", ip);
     // Using ipapi.co - A free service with reasonable limits (1000 requests/day)
     const response = await fetch(`https://ipapi.co/${ip}/json/`);
     const data = await response.json();
@@ -49,6 +51,7 @@ export async function getUserLocation(ip: string): Promise<[number, number]> {
     // TODO: can return city and other data
     // Return the location as an array of [latitude, longitude]
     const location: [number, number] = [data.latitude, data.longitude];
+    console.log("getUserLocation: location", location);
     return location;
   } catch (error) {
     console.error("Error fetching user location:", error);
