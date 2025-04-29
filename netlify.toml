@@ -1,0 +1,9 @@
+[build.environment]
+NPM_FLAGS = "--legacy-peer-deps"
+
+[build]
+command = "react-router build"
+publish = "build/client"
+
+[dev]
+command = "react-router dev"
