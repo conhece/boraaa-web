@@ -1,9 +1,16 @@
-[build.environment]
-NPM_FLAGS = "--legacy-peer-deps"
-
 [build]
-command = "react-router build"
-publish = "build/client"
+  command = "react-router build"
+  publish = "build/client"
+  functions = "build/server"
+
+[build.environment]
+  NPM_FLAGS = "--legacy-peer-deps"
 
 [dev]
-command = "react-router dev"
+  command = "react-router dev"
+
+[[redirects]]
+  from = "/*"
+  to = "/.netlify/functions/server"
+  status = 200
+  force = true
