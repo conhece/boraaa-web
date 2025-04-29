@@ -6,15 +6,25 @@ import { categoryToDisplayMap } from "@/helpers/events";
 import type { PublicEvent } from "@/lib/types/event";
 import { cn } from "@/lib/utils";
 import { ImageOff } from "lucide-react";
-import { useSearchParams } from "react-router";
+import { Link, useViewTransitionState } from "react-router";
 
-function EventImage({ src, className, ...props }: React.ComponentProps<"img">) {
+function EventImage({
+  src,
+  className,
+  transitionName,
+  ...props
+}: React.ComponentProps<"img"> & {
+  transitionName?: string;
+}) {
   return (
     <div
       className={cn(
         "w-full min-h-[148px] h-[172px] lg:h-[148px] overflow-hidden",
         className
       )}
+      style={{
+        viewTransitionName: transitionName,
+      }}
     >
       {src ? (
         <ImageComponent src={src} className="object-cover" {...props} />
@@ -84,15 +94,24 @@ function EventCategories({
 function EventSummary({
   event,
   className,
+  transitionName,
 }: {
   event: PublicEvent;
   className?: string;
+  transitionName?: string;
 }) {
   const dates = getSummaryDates(event.schedule);
   return (
     <div className={cn("p-4 space-y-4", className)}>
       <div className="space-y-1">
-        <p className="text-lg font-medium">{event.name}</p>
+        <p
+          className="card-event-title text-lg font-medium"
+          style={{
+            viewTransitionName: transitionName,
+          }}
+        >
+          {event.name}
+        </p>
         <div className="flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
           <Classification minimumAge={event.minimumAge} />
           <p>{event.place}</p>
@@ -116,15 +135,24 @@ function EventSummary({
 function EventDetails({
   event,
   className,
+  transitionName,
 }: {
   event: PublicEvent;
   className?: string;
+  transitionName?: string;
 }) {
   const dates = getDetailsDates(event.schedule);
   return (
     <div className={cn("px-0 py-4 space-y-4", className)}>
       <div className="space-y-2">
-        <p className="text-lg font-medium">{event.name}</p>
+        {/* <p
+          className="text-lg font-medium"
+          style={{
+            viewTransitionName: transitionName,
+          }}
+        >
+          {event.name}
+        </p> */}
         <div className="flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
           <Classification minimumAge={event.minimumAge} />
           <p>{event.place}</p>
@@ -155,32 +183,56 @@ function EventCard({
   event: PublicEvent | null;
   className?: string;
 }) {
-  const [searcParamss, setSearchParams] = useSearchParams();
+  // const [searcParamss, setSearchParams] = useSearchParams();
 
-  const onSelect = () => {
-    if (!event?.name) return;
-    const params = new URLSearchParams(searcParamss);
-    params.set("event", event.name);
-    setSearchParams(params);
-  };
+  // const onSelect = () => {
+  //   if (!event?.name) return;
+  //   const params = new URLSearchParams(searcParamss);
+  //   params.set("event", event.name);
+  //   setSearchParams(params, { viewTransition: true });
+  // };
+  const href = `/event/${event?.id}`;
+  const isTransitioning = useViewTransitionState(href);
 
   if (!event) return null;
 
   return (
-    <Card
-      className={cn(
-        "p-0 w-full min-h-[302px] gap-0 cursor-pointer rounded-lg overflow-hidden",
-        className
-      )}
-      onClick={onSelect}
-    >
-      <EventImage
-        src={event.image ?? undefined}
-        alt={event.name ?? "Imagem do evento"}
-      />
-      <EventSummary event={event} />
-    </Card>
+    <Link to={href} viewTransition>
+      <Card
+        className={cn(
+          "p-0 w-full min-h-[302px] gap-0 cursor-pointer rounded-lg overflow-hidden",
+          className
+        )}
+        // onClick={onSelect}
+      >
+        <EventImage
+          src={event.image ?? undefined}
+          alt={event.name ?? "Imagem do evento"}
+          transitionName={isTransitioning ? "event-image" : "none"}
+        />
+        <EventSummary
+          event={event}
+          transitionName={isTransitioning ? "event-title" : "none"}
+        />
+      </Card>
+    </Link>
   );
+
+  // return (
+  //   <Card
+  //     className={cn(
+  //       "p-0 w-full min-h-[302px] gap-0 cursor-pointer rounded-lg overflow-hidden",
+  //       className
+  //     )}
+  //     onClick={onSelect}
+  //   >
+  //     <EventImage
+  //       src={event.image ?? undefined}
+  //       alt={event.name ?? "Imagem do evento"}
+  //     />
+  //     <EventSummary event={event} />
+  //   </Card>
+  // );
 }
 
 export { EventCard, EventDetails, EventImage, EventSummary };

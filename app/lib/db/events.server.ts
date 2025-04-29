@@ -176,3 +176,26 @@ export async function getEvents({
 //     },
 //   })
 // );
+
+export async function getEventById(id: string): Promise<PublicEvent | null> {
+  await connectToDatabase();
+  const event = await Event.findById(id);
+  if (!event) {
+    return null;
+  }
+  const place =
+    typeof event.schema?.location === "string" ? event.schema.location : "";
+  return {
+    id: (event._id as Types.ObjectId).toHexString(),
+    url: event.url,
+    categories: event.categories,
+    name: event.name,
+    about: event.about,
+    image: event.image,
+    duration: event.duration,
+    schedule: event.schedule,
+    cheapestPrice: event.cheapestPrice,
+    minimumAge: event.minimumAge,
+    place,
+  } as PublicEvent;
+}
