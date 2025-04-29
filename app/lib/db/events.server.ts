@@ -1,4 +1,4 @@
-import { DEFAULT_DISTANCE, logArgs } from "@/helpers/app";
+import { DEFAULT_DISTANCE } from "@/helpers/app";
 import { Types, type FilterQuery } from "mongoose";
 import type { EventsResponse, PublicEvent } from "../types/event";
 import type { EventMode } from "../types/search";
@@ -34,19 +34,19 @@ export async function getEvents({
 }: Params): Promise<EventsResponse> {
   await connectToDatabase();
 
-  logArgs("getEvents: ", {
-    mode,
-    search,
-    around,
-    startDate,
-    endDate,
-    categories,
-    cheapestPrice,
-    minimumAge,
-    distance,
-    page,
-    limit,
-  });
+  // logArgs("getEvents: ", {
+  //   mode,
+  //   search,
+  //   around,
+  //   startDate,
+  //   endDate,
+  //   categories,
+  //   cheapestPrice,
+  //   minimumAge,
+  //   distance,
+  //   page,
+  //   limit,
+  // });
 
   // Ensure page is at least 1
   page = Math.max(1, page);

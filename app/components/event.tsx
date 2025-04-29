@@ -1,7 +1,6 @@
 import { ImageComponent } from "@/components/image";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
-import { logArgs } from "@/helpers/app";
 import { getDetailsDates, getSummaryDates } from "@/helpers/date";
 import { categoryToDisplayMap } from "@/helpers/events";
 import type { PublicEvent } from "@/lib/types/event";
@@ -67,7 +66,7 @@ function EventCategories({
     <div className="flex flex-wrap gap-2">
       {categories.map((category, index) => {
         const name = categoryToDisplayMap.get(category);
-        if (!name) logArgs(category);
+        // if (!name) logArgs(category);
         return (
           <Badge
             key={index}
