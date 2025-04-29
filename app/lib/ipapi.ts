@@ -39,12 +39,14 @@ export async function getUserLocation(ip: string): Promise<[number, number]> {
 
   try {
     console.log("getUserLocation: ", ip);
+    // Properly encode the IP address for the URL
+    const encodedIP = encodeURIComponent(ip);
     // Using ipapi.co - A free service with reasonable limits (1000 requests/day)
-    const response = await fetch(`https://ipapi.co/${ip}/json/`);
+    const response = await fetch(`https://ipapi.co/${encodedIP}/json/`);
     const data = await response.json();
 
     if (!data.latitude || !data.longitude) {
-      logArgs("getUserLocation: response", data);
+      console.log("getUserLocation: response", data);
       throw new Error("Invalid location data");
     }
 
