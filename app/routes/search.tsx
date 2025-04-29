@@ -8,7 +8,7 @@ import { getCategoriesFromParams } from "@/helpers/events";
 import { locationCookie } from "@/lib/cookies.server";
 import { dayjs } from "@/lib/dayjs";
 import { getEvents } from "@/lib/db/events.server";
-import { getClientIP, getUserLocation } from "@/lib/ipapi";
+import { getUserLocationFromRequest } from "@/lib/ip-api";
 import type { EventMode } from "@/lib/types/search";
 import { Suspense } from "react";
 import { data } from "react-router";
@@ -33,8 +33,7 @@ export async function loader({ request }: Route.LoaderArgs) {
   let around = cookie.around || null;
   if (!around) {
     // Get user location based on IP address
-    const ip = getClientIP(request);
-    around = await getUserLocation(ip);
+    around = await getUserLocationFromRequest(request);
     cookie.around = around;
     updateCookie = true;
   }
