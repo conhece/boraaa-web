@@ -9,8 +9,8 @@ import {
 } from "@/components/ui/dialog";
 import type { PublicEvent } from "@/lib/types/event";
 import { SquareArrowOutUpRight } from "lucide-react";
-import { useEffect, useState } from "react";
-import { useSearchParams } from "react-router";
+import { useEffect, useMemo, useState } from "react";
+import { useSearchParams, useViewTransitionState } from "react-router";
 import { EventDetails, EventImage } from "./event";
 import ExternalLink from "./external-link";
 import { ScrollArea } from "./ui/scroll-area";
@@ -21,17 +21,36 @@ export function EventDialog({ events }: { events: PublicEvent[] }) {
   const [selected, setSelected] = useState<PublicEvent | null>(null);
   const [open, setOpen] = useState(false);
 
+  const previousSearch = useMemo(() => {
+    searchParams.delete("event");
+    return searchParams.toString();
+  }, []);
+
+  const isTransitioning = useViewTransitionState({ search: previousSearch });
+
   const eventName = searchParams.get("event");
 
   const onClose = () => {
     const params = new URLSearchParams(searchParams);
     params.delete("event");
-    setSearchParams(params);
+    setSearchParams(params, {
+      viewTransition: true,
+      preventScrollReset: true,
+    });
   };
 
   useEffect(() => {
     if (!events.length) return;
+
+    const controller = new AbortController();
+    const signal = controller.signal;
+
     if (!eventName) {
+      setTimeout(() => {
+        if (signal.aborted) return;
+        setOpen(false);
+        setSelected(null);
+      }, 500);
       setOpen(false);
       setSelected(null);
     } else {
@@ -39,6 +58,10 @@ export function EventDialog({ events }: { events: PublicEvent[] }) {
       setSelected(event || null);
       setOpen(true);
     }
+
+    return () => {
+      controller.abort(); // triggers the abort event
+    };
   }, [events, eventName]);
 
   return (
@@ -58,6 +81,9 @@ export function EventDialog({ events }: { events: PublicEvent[] }) {
                   src={selected.image ?? undefined}
                   alt={selected.name ?? "Imagem do evento"}
                   className="rounded-md overflow-hidden"
+                  transitionName={
+                    isTransitioning ? `event-${selected.id}` : "none"
+                  }
                 />
                 <EventDetails event={selected} />
               </div>

@@ -6,15 +6,23 @@ import { categoryToDisplayMap } from "@/helpers/events";
 import type { PublicEvent } from "@/lib/types/event";
 import { cn } from "@/lib/utils";
 import { ImageOff } from "lucide-react";
-import { useSearchParams } from "react-router";
+import { useSearchParams, useViewTransitionState } from "react-router";
 
-function EventImage({ src, className, ...props }: React.ComponentProps<"img">) {
+function EventImage({
+  src,
+  className,
+  transitionName,
+  ...props
+}: React.ComponentProps<"img"> & { transitionName?: string }) {
   return (
     <div
       className={cn(
         "w-full min-h-[148px] h-[172px] lg:h-[148px] overflow-hidden",
         className
       )}
+      style={{
+        viewTransitionName: transitionName,
+      }}
     >
       {src ? (
         <ImageComponent src={src} className="object-cover" {...props} />
@@ -157,11 +165,14 @@ function EventCard({
 }) {
   const [searcParamss, setSearchParams] = useSearchParams();
 
+  const targetSearch = searcParamss.toString();
+  const isTransitioning = useViewTransitionState({ search: targetSearch });
+
   const onSelect = () => {
     if (!event?.name) return;
     const params = new URLSearchParams(searcParamss);
     params.set("event", event.name);
-    setSearchParams(params);
+    setSearchParams(params, { viewTransition: true, preventScrollReset: true });
   };
 
   if (!event) return null;
@@ -177,6 +188,7 @@ function EventCard({
       <EventImage
         src={event.image ?? undefined}
         alt={event.name ?? "Imagem do evento"}
+        transitionName={isTransitioning ? `event-${event.id}` : "none"}
       />
       <EventSummary event={event} />
     </Card>
